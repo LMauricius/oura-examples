@@ -1,61 +1,57 @@
-import ABISpec module ABI Core
+import [
+    ABISpec
+    ExternC
+] module ABI Core
 import ArgumentList module Program Std
 import ArrayList module Lists Std
-import (
+import [
     Seed
     deviceRandom
     random
     UniformDistribution
-) module Random Std
-import (
-    console
-    read
-    write
-) module IO Std
+] module Random Std
+import console module IO Std
 
 NO_FACTORY_FUNCTION_DEFINITION: Bool
 
-factoryFunctionPossibleImpl = ([import deviceRandom] >> @(ArrayList Int64){
-    seed: var = @Seed deviceRandom Int64
-    uniformDist = @(UniformDistribution Int64)range[1, 10]
+factoryFunctionPossibleImpl = ABISpec@ExternC & 
+& factoryFunctionPossibleImpl() => (ArrayList Int64)@{
+    seed: var = Seed@ deviceRandom Int64
+    uniformDist = (UniformDistribution Int64)@ range[1, 10]
     seed! randSize = random uniformDist
 
-    pVec: var = @(ArrayList Int64)[]
+    pVec = var (ArrayList Int64)@[]
     for i in range[0, randSize] {
         seed! newNum = random uniformDist
         pVec! append newNum
     }
 
-    break = pVec
-}) & @ABISpec[symbol = "factoryFunctionPossibleImpl"]
+    return pVec
+}
 
 factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else None
 
-main ArgumentList =>> @IntNative until End{
-    console! n = good read Int64 except {
+main(var import console) => {
+    console! n = good read Int64 except until Default{
         console! write "Invalid input; assuming n=0\n"
-        break = 0
+        Default return 0
     }
-
-    import @([import deviceRandom] -> ArrayList Int64)factoryFunction except {
+    
+    import (() -> ArrayList Int64)@factoryFunction except {
         console! write "factoryFunction not defined!\n"
-        break End = 0
+        return 0
     }
 
-    vecs = @(ArrayList ArrayList Int64) |>{
-        for range[0, n] {
-            yield factoryFunction[]
-        }
-    }
+    vecs = (ArrayList ArrayList Int64)@[factoryFunction[] for range[0, n]]
 
-    acc: var = 0
+    acc = var 0
     for vec in vecs {
-        using frontInd = @(Index vec)0 {
+        using frontInd = (Index vec)@0 {
             acc! +item[vec, frontInd]
         } except {
             console! write "Unexpected error - vector was empty!\n"
         }
     }
 
-    break End = acc
+    return acc
 }
