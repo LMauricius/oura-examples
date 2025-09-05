@@ -2,7 +2,7 @@ import exceptional module Exception
 
 OutOfBoundsError = exceptional class
 
-IntList proto = struct (
+IntList = proto struct (
     _reservedBuffer: var Buffer Int32
     _usedLen: var Size
 )

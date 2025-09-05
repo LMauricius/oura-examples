@@ -6,18 +6,18 @@ import ArgumentList module Program Std
 import ArrayList module Lists Std
 import [
     Seed
-    deviceRandom
+    var deviceRandom
     random
     UniformDistribution
 ] module Random Std
-import console module IO Std
+import var console module IO Std
 
 NO_FACTORY_FUNCTION_DEFINITION: Bool
 
 factoryFunctionPossibleImpl = ABISpec@ExternC & 
 & factoryFunctionPossibleImpl() => (ArrayList Int64)@{
-    seed: var = Seed@ deviceRandom Int64
-    uniformDist = (UniformDistribution Int64)@ range[1, 10]
+    seed = var Seed@(deviceRandom Int64)
+    uniformDist = (UniformDistribution Int64)@(range[1, 10])
     seed! randSize = random uniformDist
 
     pVec = var (ArrayList Int64)@[]
@@ -31,7 +31,7 @@ factoryFunctionPossibleImpl = ABISpec@ExternC &
 
 factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else None
 
-main(var import console) => {
+main() => {
     console! n = good read Int64 except until Default{
         console! write "Invalid input; assuming n=0\n"
         Default return 0
@@ -42,7 +42,7 @@ main(var import console) => {
         return 0
     }
 
-    vecs = (ArrayList ArrayList Int64)@[factoryFunction[] for range[0, n]]
+    vecs = (ArrayList ArrayList Int64)@[factoryFunction() for range[0, n]]
 
     acc = var 0
     for vec in vecs {

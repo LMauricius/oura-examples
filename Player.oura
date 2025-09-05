@@ -28,8 +28,8 @@ attack(attacker: var Player, target: var Player) => {
 action(myPlayer: var Player, otherPlayer: var Player) => {
     (myPlayer = attacker, otherPlayer = target)! attack()
 
-    #*
+    #-
     SHORT: myPlayer! otherPlayer! attack()
     EXPLICIT: (myPlayer = attacker, otherPlayer = target) = attack(attacker = myPlayer, target = otherPlayer)
-    *#
+    -#
 }
