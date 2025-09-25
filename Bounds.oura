@@ -7,7 +7,7 @@ IntList = proto struct (
     _usedLen: var Size
 )
 
-len[arr: IntList] => _usedLen arr
+len(arr: IntList) => _usedLen arr
 
 Index(arr: ref IntList out) => Size & (req this < len arr)
 
