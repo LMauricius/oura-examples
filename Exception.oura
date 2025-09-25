@@ -8,8 +8,8 @@ DivByZero = exceptional class
 
 divided(a: ArgT, b: ArgT, ArgT: proto Number = auto) => (ArgT|DivByZero)@{
     if b ?= ArgT@0 {
-        break DivByZero
+        return DivByZero
     } else {
-        break a / b
+        return a / b
     }
 }
