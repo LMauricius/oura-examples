@@ -31,7 +31,7 @@ factoryFunctionPossibleImpl = ABISpec@ExternC &
 
 factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else None
 
-main{} => :
+main args => :
     console! n = good read Int64 except = :
         console! write "Invalid input; assuming n=0\n"
         except return 0
