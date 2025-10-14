@@ -1,15 +1,15 @@
 import [ABISpec, CatchStack, CatchLookUp] module ABI Core
 
-exceptional(E: Any) => proto E & ABISpec@(storage = CatchStack)
+exceptional{E: Any} => proto E & ABISpec@{storage = CatchStack}
 
-unexpected(E: Any) => E & ABISpec@(storage = CatchLookUp)
+unexpected{E: Any} => E & ABISpec@{storage = CatchLookUp}
 
 DivByZero = exceptional class
 
-divided(a: ArgT, b: ArgT, ArgT: proto Number = auto) => (ArgT|DivByZero)@{
-    if b ?= ArgT@0 {
+divided{a: ArgT, b: ArgT, ArgT: proto Number = auto} => (ArgT|DivByZero)@:
+    if b ?= ArgT@0:
         return DivByZero
-    } else {
+    :: else:
         return a / b
-    }
-}
+    ::
+::
