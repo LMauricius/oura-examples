@@ -32,14 +32,14 @@ factoryFunctionPossibleImpl = ABISpec@ExternC &
 factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else None
 
 main{} => :
-    console! n = good read Int64 except until Default:
+    console! n = good read Int64 except = :
         console! write "Invalid input; assuming n=0\n"
-        Default return 0
+        except return 0
     ::
     
     import ({} -> ArrayList Int64)@factoryFunction except:
         console! write "factoryFunction not defined!\n"
-        return 0
+        except return 0
     ::
 
     vecs = (ArrayList ArrayList Int64)@[factoryFunction{} for range[0, n]]
@@ -53,5 +53,5 @@ main{} => :
         ::
     ::
 
-    return acc
+    main return acc
 ::
