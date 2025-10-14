@@ -1,0 +1,24 @@
+ProtoRecord = proto {
+    f ~ [Real, Int] -> Real
+    g ~ [Real, Count] -> Real
+}
+
+ImplRecord = ProtoRecord@{
+    f[x, y] => x * y
+    g[x, p] => :
+        res = var x
+
+        repeat p - 1:
+            res! * x
+        ::
+
+        return res
+    ::
+}
+
+inplaceFunc{a ~ Real, b ~ Real} => a + b
+inplaceRoutine{c ~ Int, d ~ Int} => Real@:
+    m = c * d
+    s = c + d
+    return m / s
+::
