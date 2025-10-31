@@ -1,12 +1,12 @@
 ProtoRecord = proto {
-    f ~ [Real, Int] ~> Real
-    g ~ [Real, Count] ~> Real
-    h[Real, Count] ~ Real
+    f ~ (Real, Int) ~> Real
+    g ~ (Real, Count) ~> Real
+    h(Real, Count) ~ Real
 }
 
 ImplRecord = ProtoRecord@{
-    f = [x, y] -> x * y
-    g = [x, p] -> :
+    f = (x, y) -> x * y
+    g = (x, p) -> :
         res = var x
 
         repeat p - 1:
@@ -16,7 +16,7 @@ ImplRecord = ProtoRecord@{
         return res
     ::
 
-    h[a, d] => a / d
+    h(a, d) => a / d
 }
 
 terseFunc{a ~ Real, b ~ Real} => a + b

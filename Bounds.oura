@@ -11,17 +11,17 @@ len{arr ~ IntList} => _usedLen arr
 
 Index{arr ~ ref IntList out} => Size & (req this < len arr)
 
-safeItem{arr ~ IntList, ind ~ Index arr} => _reservedBuffer[arr, ind]
+safeItem{arr ~ IntList, ind ~ Index arr} => _reservedBuffer(arr, ind)
 
 
 
 
 
-sum2Items{arr ~ IntList, ind1 ~ Size, ind2 ~ Size} => (Int32|OutOfBoundsError)@:
+sum2Items{arr ~ IntList, ind1 ~ Size, ind2 ~ Size} => Int32|OutOfBoundsError@:
     res ~ Int32|OutOfBoundsError
     
     using Index arr@ind1, Index arr@ind2:
-        res = safeItem[arr, ind1] + safeItem[arr, ind2]
+        res = safeItem(arr, ind1) + safeItem(arr, ind2)
     :: except:
         res = OutOfBoundsError
     ::

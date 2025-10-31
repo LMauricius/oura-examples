@@ -1,9 +1,9 @@
 import module Math Std
 import exceptional module Exception
 import GoodResult module Core
-import [TextStream, DeserializationError] module IO Std
+import (TextStream, DeserializationError) module IO Std
 
-Vector3 = proto {
+Vector3 = proto struct{
     x ~ Float32
     y ~ Float32
     z ~ Float32
@@ -19,7 +19,7 @@ length{vec ~ Vector3} => (sqrt Math)(x vec^2 + y vec^2 + z vec^2)
 
 normalized{vec ~ Vector3 & non ZERO3} => Vector3@:
     l = length vec
-    return [x vec / l, y vec / l, z vec / l]
+    return (x vec / l, y vec / l, z vec / l)
 ::
 
 InvalidVectorError = exceptional class
@@ -29,7 +29,7 @@ deserializeNormal{ts ~ var TextStream} => (Vector3|DeserializationError|InvalidV
     ts! y = read Float32
     ts! z = read Float32
 
-    vec = Vector3@[good x, good y, good z] except return DeserializationError
+    vec = Vector3@(good x, good y, good z) except return DeserializationError
 
     using Vector3 & non ZERO3@vec:
         return normalized vec
