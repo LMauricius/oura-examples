@@ -24,17 +24,14 @@ normalized{vec ~ Vector3 & non ZERO3} => Vector3@:
 
 InvalidVectorError = exceptional class
 
-deserializeNormal{ts ~ var TextStream} => (
-    (Vector3|DeserializationError|InvalidVectorError) &
-    & auto
-)@:
+deserializeNormal{ts ~ var TextStream} => (Vector3|DeserializationError|InvalidVectorError) & auto@:
     ts! x = read Float32
     ts! y = read Float32
     ts! z = read Float32
 
     vec = Vector3@[good x, good y, good z] except return DeserializationError
 
-    using (Vector3 & non ZERO3)@vec:
+    using Vector3 & non ZERO3@vec:
         return normalized vec
     :: except return InvalidVectorError
 ::
