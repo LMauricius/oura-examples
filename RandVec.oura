@@ -2,7 +2,6 @@ import [
     ABISpec
     ExternC
 ] module ABI Core
-import ArgumentList module Program Std
 import ArrayList module Lists Std
 import [
     Seed
@@ -29,7 +28,7 @@ factoryFunctionPossibleImpl = ABISpec@ExternC &
     return pVec
 ::
 
-factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else None
+factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else Nil
 
 main args => :
     console! n = good read Int64 except:
@@ -37,9 +36,9 @@ main args => :
         except return 0
     ::
     
-    import ({} -> ArrayList Int64)@factoryFunction except:
+    import ({} ~> ArrayList Int64)@factoryFunction except:
         console! write "factoryFunction not defined!\n"
-        except return 0
+        main return 0
     ::
 
     vecs = (ArrayList ArrayList Int64)@[factoryFunction{} for range[0, n]]
