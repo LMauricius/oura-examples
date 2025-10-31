@@ -10,7 +10,7 @@ hurt{targetPlayer ~ var Player, amount ~ Real} => :
         targetPlayer! playAnim "Dying"
     :: else:
         health targetPlayer! -amount
-        # ^ Equivalent to ~ health targetPlayer = health targetPlayer - amount
+        # ^ Equivalent to: health targetPlayer = health targetPlayer - amount
 
         if amount < 40:
             targetPlayer! playAnim "Hit"
@@ -29,7 +29,7 @@ action{myPlayer ~ var Player, otherPlayer ~ var Player} => :
     {myPlayer = attacker, otherPlayer = target}! attack{}
 
     #-
-    SHORT ~ myPlayer! otherPlayer! attack{}
-    EXPLICIT ~ (myPlayer = attacker, otherPlayer = target) = attack{attacker = myPlayer, target = otherPlayer}
+    SHORT: myPlayer! otherPlayer! attack{}
+    EXPLICIT: {myPlayer = attacker, otherPlayer = target} = attack{attacker = myPlayer, target = otherPlayer}
     -#
 ::
