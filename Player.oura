@@ -26,10 +26,10 @@ attack{attacker ~ var Player, target ~ var Player} => :
 ::
 
 action{myPlayer ~ var Player, otherPlayer ~ var Player} => :
-    {myPlayer = attacker, otherPlayer = target}! attack{}
+    myPlayer! otherPlayer! attack{}
 
     #-
-    SHORT: myPlayer! otherPlayer! attack{}
+    LONGER: {myPlayer = attacker, otherPlayer = target}! attack{}
     EXPLICIT: {myPlayer = attacker, otherPlayer = target} = attack{attacker = myPlayer, target = otherPlayer}
     -#
 ::
