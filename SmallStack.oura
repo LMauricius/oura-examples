@@ -1,0 +1,95 @@
+## A stack of Items optimized for small amount of entries
+## @param Item the trait of items
+SmallStack = Listable Item & proto struct{
+    Item ~ proto Any
+    SMALL_COUNT ~ Count
+
+    _self = local
+
+    #### Traits ################################################################
+    Index = Unsigned64 & req(local < _count) in _count
+
+    #### Getters ###############################################################
+
+    capacity{import _self} => _capacity _self
+    count{import _self} => _count _self
+
+    items{import _self out return} => ...
+        for item in filled _data _self:
+            yield item
+        ::
+    ::
+
+    item{import _self, index ~ Index} => item(filled _data _self, index)
+    \= item{import var _self, index ~ Index, value ~ Item} => :
+        item(filled _data _self, index) = value
+    ::
+
+    isEmpty{import _self} => whether _count _self ?= 0
+
+    #### Methods ###############################################################
+
+    push{import var _self, value ~ Item stack} => :
+        stack! _ensureCapacity(_count stack + 1)
+
+        old = filled _data _self
+        _count stack !+ 1 # invalidates _data _self
+        _data _self = _PreallocBuffer(_self, _count _self, minCapacity) @
+            @ concat[old, [value]]
+    ::
+
+    pop{import var _self, value ~ Item stack} => Item@:
+        ret = item(filled _data _self, _count _self - 1)
+
+        old = items(filled _data _self, range(0, _count _self - 1))
+        _count stack !- 1 # invalidates _data _self
+        _data _self = _PreallocBuffer(_self, _count _self, minCapacity)@old
+
+        return ret
+    ::
+
+    concat{import var _self, values ~ Listable Item} => :
+        stack! _ensureCapacity(_count stack + 1)
+
+        old = filled _data _self
+        _count stack !+ count values # invalidates _data _self
+        _data _self = _PreallocBuffer(_self, _count _self, minCapacity) @
+            @ concat[old, values]
+    ::
+
+    #### Internal data #########################################################
+
+    _count ~ var Unsigned64 out _data
+    _capacity ~ var Unsigned64 out _data
+    _data ~ var (
+        (_PreallocBuffer(_count, SMALL_COUNT) & req _usingSmall _self) |
+        | (_PreallocBuffer(_count, _capacity) & req not _usingSmall _self)
+    )
+
+    #### Internal Helpers ######################################################
+
+    ## @returns Whether we need SOO
+    _usingSmall{import _self} = _capacity _self <= SMALL_COUNT _self
+
+    ## @brief Bytes for unset values
+    _ItemBytes = GarbageBytes{import size(Bytes@Item)}
+
+    ## @brief A buffer holding `count` items, reserved for `capacity` items
+    _PreallocBuffer{import _self, count ~ Count, capacity ~ Count} = proto struct{
+        filled ~ Array@(Item, count)
+        reserved = Array@(_ItemBytes, capacity - count)
+    }
+
+    ## @brief Ensures that the stack has enough memory for the capacity,
+    ## without modifying the items
+    _ensureCapacity{import var _self, minCapacity ~ Unsigned64} => :
+        if _capacity _self < minCapacity and minCapacity > SMALL_COUNT _self:
+            old = filled _data _self
+            _capacity _self = minCapacity
+            _data _self = _PreallocBuffer(_self, _count _self, minCapacity)@old
+        ::
+    ::
+
+    
+
+}
