@@ -1,6 +1,6 @@
 ## A stack of Items optimized for small amount of entries
 ## @param Item the trait of items
-SmallStack = Listable Item & proto struct{
+SmallStack = proto @ Listable Item & struct{
     Item ~ proto Any
     SMALL_COUNT ~ Count
 
