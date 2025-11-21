@@ -30,7 +30,7 @@ SmallStack = proto @ Listable Item & struct{
     #### Methods ###############################################################
 
     push{import var self, value ~ Item self} => :
-        self! ensureCapacity(count self + 1)
+        ensureCapacity(self!, count self + 1)
 
         old = filled data self
         count self! +1 # invalidates data self
@@ -49,7 +49,7 @@ SmallStack = proto @ Listable Item & struct{
     ::
 
     concat{import var self, values ~ Listable Item} => :
-        self! ensureCapacity(count self + 1)
+        ensureCapacity(self!, count self + count values)
 
         old = filled data self
         count self! + count values # invalidates data self
