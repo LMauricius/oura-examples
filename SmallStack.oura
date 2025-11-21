@@ -34,8 +34,11 @@ SmallStack = proto @ Listable Item & struct{
 
         old = filled data self
         count self! +1 # invalidates data self
-        data self = PreallocBuffer(self, count self, minCapacity) @
-            @ concat[old, [value]]
+        data self = PreallocBuffer@{
+            count = count self
+            capacity = minCapacity
+            filled = concat[old, [value]]
+        }
     ::
 
     pop{import var self, value ~ Item stacsk} => Item@:
@@ -43,18 +46,25 @@ SmallStack = proto @ Listable Item & struct{
 
         old = items(filled data self, range(0, count self - 1))
         count self! -1 # invalidates data self
-        data self = PreallocBuffer(self, count self, minCapacity)@old
+        data self = PreallocBuffer@{
+            count = count self
+            capacity = capacity self
+            filled = old
+        }
 
         return ret
     ::
 
-    concat{import var self, values ~ Listable Item} => :
-        ensureCapacity(self!, count self + count values)
+    concat{import var self, lists ~ Listable Listable Item} => :
+        newValuesCount = sum[count list for list in lists]
 
         old = filled data self
-        count self! + count values # invalidates data self
-        data self = PreallocBuffer(self, count self, minCapacity) @
-            @ concat[old, values]
+        count self! + newValuesCount # invalidates data self
+        data self = PreallocBuffer@{
+            count = count self
+            capacity = count self + newValuesCount
+            filled = concat[old, concat lists]
+        }
     ::
 
     #### Internal data #########################################################
@@ -62,8 +72,8 @@ SmallStack = proto @ Listable Item & struct{
     _count ~ var Unsigned64 out data
     _capacity ~ var Unsigned64 out data
     _data ~ var (
-        (PreallocBuffer(count, SMALL_COUNT) & req usingSmall self) |
-        | (PreallocBuffer(count, capacity) & req not usingSmall self)
+        (PreallocBuffer@(count, SMALL_COUNT) & req usingSmall self) |
+        | (PreallocBuffer@(count, capacity) & req not usingSmall self)
     )
 
     #### Internal Helpers ######################################################
@@ -75,7 +85,11 @@ SmallStack = proto @ Listable Item & struct{
     _ItemBytes = GarbageBytes{import size(Bytes@Item)}
 
     ## @brief A buffer holding `count` items, reserved for `capacity` items
-    _PreallocBuffer{import self, count ~ Count, capacity ~ Count} = proto struct{
+    _PreallocBuffer = proto struct{
+        import (Item, ItemBytes)
+
+        count ~ Count
+        capacity ~ Count
         filled ~ Array@(Item, count)
         reserved = Array@(ItemBytes, capacity - count)
     }
