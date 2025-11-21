@@ -89,7 +89,4 @@ SmallStack = proto @ Listable Item & struct{
             data self = PreallocBuffer(self, count self, minCapacity)@old
         ::
     ::
-
-    
-
 }
