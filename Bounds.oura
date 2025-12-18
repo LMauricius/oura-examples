@@ -7,11 +7,11 @@ IntList = proto struct{
     _usedLen ~ var Size
 }
 
-len{arr ~ IntList} => _usedLen arr
+len{arr ~ IntList} => usedLen arr
 
 Index{arr ~ ref IntList out} => Size & (req this < len arr)
 
-safeItem{arr ~ IntList, ind ~ Index arr} => _reservedBuffer(arr, ind)
+safeItem{arr ~ IntList, ind ~ Index arr} => reservedBuffer(arr, ind)
 
 
 

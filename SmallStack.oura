@@ -21,7 +21,7 @@ SmallStack = proto @ Listable Item & struct{
     ::
 
     item{import self, index ~ Index} => item(filled data self, index)
-    \= item{import var self, index ~ Index, value ~ Item} => :
+    operator item{import self, index ~ Index} = {value ~ Item} => :
         item(filled data self, index) = value
     ::
 

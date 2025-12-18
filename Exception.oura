@@ -1,4 +1,4 @@
-import [ABISpec, CatchStack, CatchLookUp] module ABI Core
+import (ABISpec, CatchStack, CatchLookUp) module ABI Core
 
 exceptional{E ~ Any} => proto E & ABISpec@{storage = CatchStack}
 
