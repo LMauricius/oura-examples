@@ -1,7 +1,7 @@
 ProtoRecord = proto {
-    f ~ (Real, Int) ~> Real
-    g ~ (Real, Count) ~> Real
-    h(Real, Count) ~ Real
+    f ? (Real, Int) ?> Real
+    g ? (Real, Count) ?> Real
+    h(Real, Count) ? Real
 }
 
 ImplRecord = ProtoRecord@{
@@ -19,8 +19,8 @@ ImplRecord = ProtoRecord@{
     h(a, d) => a / d
 }
 
-terseFunc{a ~ Real, b ~ Real} => a + b
-terseRoutine{c ~ Int, d ~ Int} => Real@:
+terseFunc{a ? Real, b ? Real} => a + b
+terseRoutine{c ? Int, d ? Int} => Real@:
     m = c * d
     s = c + d
     return m / s
