@@ -17,13 +17,13 @@ SmallStack = proto @ Listable Item & struct(
     items(import self out yield) =>...
         for item in filled data self:
             yield item
-        ::
-    ::
+        	--
+    	--
 
     item(import self, index ? Index) => item(filled data self, index)
     operator item(import self, index ? Index) = (value ? Item) => :
         item(filled data self, index) = value
-    ::
+    	--
 
     isEmpty(import self) => whether count self ?= 0
 
@@ -39,7 +39,7 @@ SmallStack = proto @ Listable Item & struct(
             capacity = minCapacity
             filled = concat[old, [value]]
         )
-    ::
+    	--
 
     pop(import var self, value ? Item stacsk) => Item@:
         ret = item(filled data self, count self - 1)
@@ -53,7 +53,7 @@ SmallStack = proto @ Listable Item & struct(
         )
 
         return ret
-    ::
+    	--
 
     concat(import var self, lists ? Listable Listable Item) => :
         newValuesCount = sum[count list for list in lists]
@@ -65,7 +65,7 @@ SmallStack = proto @ Listable Item & struct(
             capacity = count self + newValuesCount
             filled = concat[old, concat lists]
         )
-    ::
+    	--
 
     #### Internal data #########################################################
 
@@ -101,6 +101,6 @@ SmallStack = proto @ Listable Item & struct(
             old = filled data self
             capacity self = minCapacity
             data self = PreallocBuffer(self, count self, minCapacity)@old
-        ::
-    ::
+        	--
+    	--
 )

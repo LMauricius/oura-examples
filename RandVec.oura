@@ -23,10 +23,10 @@ factoryFunctionPossibleImpl = ABISpec@ExternC &
     for i in range(0, randSize):
         newNum = random[seed!, uniformDist]
         append[pVec!, newNum]
-    ::
+    	--
 
     return pVec
-::
+	--
 
 factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else Nil
 
@@ -34,12 +34,12 @@ main args => :
     n = good read[console!, Int64] except:
         write[console!, "Invalid input; assuming n=0\n"]
         except return 0
-    ::
+    	--
     
     import ([] ~> ArrayList Int64)@factoryFunction except:
         write[console!, "factoryFunction not defined!\n"]
         main return 0
-    ::
+    	--
 
     vecs = ArrayList ArrayList Int64@[factoryFunction[] for range[0, n]]
 
@@ -47,10 +47,10 @@ main args => :
     for vec in vecs:
         using frontInd = Index vec@0:
             acc! +item[vec, frontInd]
-        :: except:
+        	-- except:
             write[console!, "Unexpected error - vector was empty!\n"]
-        ::
-    ::
+        	--
+    	--
 
     main return acc
-::
+	--

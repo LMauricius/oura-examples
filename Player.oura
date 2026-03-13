@@ -8,22 +8,22 @@ hurt(targetPlayer ? var Player, amount ? Real) => :
         health targetPlayer = 0
         lives targetPlayer! -1
         playAnim[targetPlayer!, "Dying"]
-    :: else:
+    	-- else:
         health targetPlayer! -amount
         # ^ Equivalent to: health targetPlayer = health targetPlayer - amount
 
         if amount < 40:
             playAnim[targetPlayer!, "Hit"]
-        :: else:
+        	-- else:
             playAnim[targetPlayer!, "Pain"]
-        ::
-    ::
-::
+        	--
+    	--
+	--
 
 attack(attacker ? var Player, target ? var Player) => :
     playAnim[attacker!, "SwordSwing"]
     hurt[target!, strength attacker]
-::
+	--
 
 action(myPlayer ? var Player, otherPlayer ? var Player) => :
     attack[myPlayer!, otherPlayer!]
@@ -32,4 +32,4 @@ action(myPlayer ? var Player, otherPlayer ? var Player) => :
     LONGER: attack(myPlayer = attacker!, otherPlayer = target!)
     EXPLICIT: (myPlayer = attacker, otherPlayer = target) = attack(attacker = myPlayer, target = otherPlayer)
     -#
-::
+	--
