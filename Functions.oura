@@ -1,6 +1,6 @@
 ProtoRecord = proto {
-    f ? (Real, Int) ?> Real
-    g ? (Real, Count) ?> Real
+    f ? (Real, Int) ~> Real
+    g ? (Real, Count) ~> Real
     h(Real, Count) ? Real
 }
 

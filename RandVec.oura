@@ -11,7 +11,7 @@ import (
 ) module Random Std
 import var console module IO Std
 
-NO_FACTORY_FUNCTION_DEFINITION ~ Bool
+NO_FACTORY_FUNCTION_DEFINITION ? Bool
 
 factoryFunctionPossibleImpl = ABISpec@ExternC & 
 & factoryFunctionPossibleImpl{} => ArrayList Int64@:
