@@ -14,7 +14,7 @@ import var console module IO Std
 NO_FACTORY_FUNCTION_DEFINITION::Bool
 
 factoryFunctionPossibleImpl = ABISpec@ExternC & 
-& factoryFunctionPossibleImpl[] => ArrayList Int64@:
+& [] -> ArrayList Int64@:
     seed = var Seed@deviceRandom Int64
     uniformDist = UniformDistribution Int64@range[1, 10]
     randSize = random[seed!, uniformDist]
@@ -30,13 +30,13 @@ factoryFunctionPossibleImpl = ABISpec@ExternC &
 
 factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else Nil
 
-main args => :
+main[args] => :
     n = good read[console!, Int64] except:
         write[console!, "Invalid input; assuming n=0\n"]
         except return 0
     	--
     
-    import ([] ~> ArrayList Int64)@factoryFunction except:
+    import ([] :> ArrayList Int64)@factoryFunction except:
         write[console!, "factoryFunction not defined!\n"]
         main return 0
     	--
