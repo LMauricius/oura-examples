@@ -1,8 +1,8 @@
 ## A stack of Items optimized for small amount of entries
 ## @param Item the trait of items
 SmallStack = proto @ Listable Item & struct(
-    Item ? proto Any
-    SMALL_COUNT ? Count
+    Item::proto Any
+    SMALL_COUNT::Count
 
     _self = local
 
@@ -20,16 +20,16 @@ SmallStack = proto @ Listable Item & struct(
         	--
     	--
 
-    item(import self, index ? Index) => item(filled data self, index)
-    operator item(import self, index ? Index) = (value ? Item) => :
+    item(import self, index::Index) => item(filled data self, index)
+    operator item(import self, index::Index) = (value::Item) => :
         item(filled data self, index) = value
     	--
 
-    isEmpty(import self) => whether count self ?= 0
+    isEmpty(import self) => whether count self ::= 0
 
     #### Methods ###############################################################
 
-    push(import var self, value ? Item self) => :
+    push(import var self, value::Item self) => :
         ensureCapacity(self!, count self + 1)
 
         old = filled data self
@@ -41,7 +41,7 @@ SmallStack = proto @ Listable Item & struct(
         )
     	--
 
-    pop(import var self, value ? Item stacsk) => Item@:
+    pop(import var self, value::Item stacsk) => Item@:
         ret = item(filled data self, count self - 1)
 
         old = items(filled data self, range(0, count self - 1))
@@ -55,7 +55,7 @@ SmallStack = proto @ Listable Item & struct(
         return ret
     	--
 
-    concat(import var self, lists ? Listable Listable Item) => :
+    concat(import var self, lists::Listable Listable Item) => :
         newValuesCount = sum[count list for list in lists]
 
         old = filled data self
@@ -69,9 +69,9 @@ SmallStack = proto @ Listable Item & struct(
 
     #### Internal data #########################################################
 
-    _count ? var Unsigned64 out data
-    _capacity ? var Unsigned64 out data
-    _data ? var (
+    _count::var Unsigned64 out data
+    _capacity::var Unsigned64 out data
+    _data::var (
         (PreallocBuffer@(count, SMALL_COUNT) & req usingSmall self) |
         | (PreallocBuffer@(count, capacity) & req not usingSmall self)
     )
@@ -88,15 +88,15 @@ SmallStack = proto @ Listable Item & struct(
     _PreallocBuffer = proto struct(
         import (Item, ItemBytes)
 
-        count ? Count
-        capacity ? Count
-        filled ? Array@(Item, count)
+        count::Count
+        capacity::Count
+        filled::Array@(Item, count)
         reserved = Array@(ItemBytes, capacity - count)
     )
 
     ## @brief Ensures that the stack has enough memory for the capacity,
     ## without modifying the items
-    _ensureCapacity(import var self, minCapacity ? Unsigned64) => :
+    _ensureCapacity(import var self, minCapacity::Unsigned64) => :
         if capacity self < minCapacity and minCapacity > SMALL_COUNT self:
             old = filled data self
             capacity self = minCapacity
