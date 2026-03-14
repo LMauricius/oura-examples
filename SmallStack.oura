@@ -20,17 +20,17 @@ SmallStack = proto @ Listable Item & struct(
         	--
     	--
 
-    item(import self, index::Index) => item(filled data self, index)
+    item(import self, index::Index) => item[filled data self, index]
     operator item(import self, index::Index) = (value::Item) => :
-        item(filled data self, index) = value
+        item[filled data self, index] = value
     	--
 
-    isEmpty(import self) => whether count self ::= 0
+    isEmpty(import self) => whether count self ?= 0
 
     #### Methods ###############################################################
 
     push(import var self, value::Item self) => :
-        ensureCapacity(self!, count self + 1)
+        ensureCapacity[self!, count self + 1]
 
         old = filled data self
         count self! +1 # invalidates data self
@@ -39,12 +39,12 @@ SmallStack = proto @ Listable Item & struct(
             capacity = minCapacity
             filled = concat[old, [value]]
         )
-    	--
+    --
 
     pop(import var self, value::Item stacsk) => Item@:
-        ret = item(filled data self, count self - 1)
+        ret = item[filled data self, count self - 1]
 
-        old = items(filled data self, range(0, count self - 1))
+        old = items[filled data self, range(0, count self - 1)]
         count self! -1 # invalidates data self
         data self = PreallocBuffer@(
             count = count self
@@ -55,7 +55,7 @@ SmallStack = proto @ Listable Item & struct(
         return ret
     	--
 
-    concat(import var self, lists::Listable Listable Item) => :
+    concat(import var self, lists :: Listable Listable Item) => :
         newValuesCount = sum[count list for list in lists]
 
         old = filled data self
@@ -72,8 +72,8 @@ SmallStack = proto @ Listable Item & struct(
     _count::var Unsigned64 out data
     _capacity::var Unsigned64 out data
     _data::var (
-        (PreallocBuffer@(count, SMALL_COUNT) & req usingSmall self) |
-        | (PreallocBuffer@(count, capacity) & req not usingSmall self)
+        (PreallocBuffer@[count, SMALL_COUNT] & req usingSmall self) |
+        | (PreallocBuffer@[count, capacity] & req not usingSmall self)
     )
 
     #### Internal Helpers ######################################################
@@ -86,12 +86,12 @@ SmallStack = proto @ Listable Item & struct(
 
     ## @brief A buffer holding `count` items, reserved for `capacity` items
     _PreallocBuffer = proto struct(
-        import (Item, ItemBytes)
+        import [Item, ItemBytes]
 
         count::Count
         capacity::Count
-        filled::Array@(Item, count)
-        reserved = Array@(ItemBytes, capacity - count)
+        filled::Array@[Item, count]
+        reserved = Array@[ItemBytes, capacity - count]
     )
 
     ## @brief Ensures that the stack has enough memory for the capacity,
@@ -100,7 +100,7 @@ SmallStack = proto @ Listable Item & struct(
         if capacity self < minCapacity and minCapacity > SMALL_COUNT self:
             old = filled data self
             capacity self = minCapacity
-            data self = PreallocBuffer(self, count self, minCapacity)@old
+            data self = PreallocBuffer[self, count self, minCapacity]@old
         	--
     	--
 )
