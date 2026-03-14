@@ -1,35 +1,37 @@
-Player = proto struct SceneObject & Animable & (
-    health: Real
-    strength: Real
+Player = proto struct @ SceneObject & Animable & (
+    health::Real
+    strength::Real
 )
 
-hurt(targetPlayer: var Player, amount: Real) => {
-    if amount >= health targetPlayer {
+hurt(targetPlayer::var Player, amount::Real) => :
+    if amount >= health targetPlayer:
         health targetPlayer = 0
         lives targetPlayer! -1
-        targetPlayer! playAnim "Dying"
-    } else {
+        playAnim[targetPlayer!, "Dying"]
+    	--
+    else:
         health targetPlayer! -amount
         # ^ Equivalent to: health targetPlayer = health targetPlayer - amount
 
-        if amount < 40 {
-            targetPlayer! playAnim "Hit"
-        } else {
-            targetPlayer! playAnim "Pain"
-        }
-    }
-}
+        if amount < 40:
+            playAnim[targetPlayer!, "Hit"]
+        	--
+        else:
+            playAnim[targetPlayer!, "Pain"]
+        	--
+    	--
+	--
 
-attack(attacker: var Player, target: var Player) => {
-    attacker! playAnim "SwordSwing"
-    target! hurt(strength attacker)
-}
+attack(attacker::var Player, target::var Player) => :
+    playAnim[attacker!, "SwordSwing"]
+    hurt[target!, strength attacker]
+	--
 
-action(myPlayer: var Player, otherPlayer: var Player) => {
-    (myPlayer = attacker, otherPlayer = target)! attack()
+action(myPlayer::var Player, otherPlayer::var Player) => :
+    attack[myPlayer!, otherPlayer!]
 
-    #-
-    SHORT: myPlayer! otherPlayer! attack()
+    /-
+    LONGER: attack(myPlayer = attacker!, otherPlayer = target!)
     EXPLICIT: (myPlayer = attacker, otherPlayer = target) = attack(attacker = myPlayer, target = otherPlayer)
-    -#
-}
+    -/
+	--
