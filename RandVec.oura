@@ -47,7 +47,8 @@ main[args] => :
     for vec in vecs:
         using frontInd = Index vec@0:
             acc! +item[vec, frontInd]
-        	-- except:
+            --
+        except:
             write[console!, "Unexpected error - vector was empty!\n"]
         	--
     	--

@@ -9,7 +9,8 @@ DivByZero = exceptional class
 divided(a::ArgT, b::ArgT, ArgT::proto Number = auto) => ArgT|DivByZero@:
     if b ::= ArgT@0:
         return DivByZero
-    	-- else:
+    	--
+    else:
         return a / b
     	--
 	--
