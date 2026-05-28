@@ -1,6 +1,7 @@
 import DictOf.module Std
 
-WeekNums = ...[
+WeekNums = [
+    ...
     :"Monday"    -> 1
     :"Tuesday"   -> 2
     :"Wednesday" -> 3
