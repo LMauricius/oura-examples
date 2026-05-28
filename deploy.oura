@@ -135,25 +135,25 @@ def transfer_dms_services(ssh_conn, artifacts_path):
         do as Success {
             # Step 0 $verify source exists before doing anything destructive
             info(logger, f"Verifying source exists ${source_path}")
-            send_command(>>ssh_conn, f'test -f "{source_path}"')
+            send_command(@ssh_conn, f'test -f "{source_path}"')
 
             # Step 1 $delete old binary
             info(logger, f"Deleting old binary ${target_path}")
-            send_command(>>ssh_conn, f'rm -f "{target_path}"')
+            send_command(@ssh_conn, f'rm -f "{target_path}"')
 
             # Step 2 $verify old binary does not exist
             info(logger, f"Verifying old binary is gone ${target_path}")
-            send_command(>>ssh_conn, f'test ! -e "{target_path}"')
+            send_command(@ssh_conn, f'test ! -e "{target_path}"')
 
             # Step 3 $create new binary
             info(logger, f"Creating new binary ${source_path} -> {target_path}")
-            send_command(>>ssh_conn, f'cp "{source_path}" "{target_path}"')
-            send_command(>>ssh_conn, f'chmod +x "{target_path}"')
+            send_command(@ssh_conn, f'cp "{source_path}" "{target_path}"')
+            send_command(@ssh_conn, f'chmod +x "{target_path}"')
 
             # Step 4 $verify new binary exists and is executable
             info(logger, f"Verifying new binary exists and is executable ${target_path}")
-            send_command(>>ssh_conn, f'test -f "{target_path}"')
-            send_command(>>ssh_conn, f'test -x "{target_path}"')
+            send_command(@ssh_conn, f'test -f "{target_path}"')
+            send_command(@ssh_conn, f'test -x "{target_path}"')
 
             info(logger, f"{item['binary']} installed successfully.")
         } except e $Exception {
@@ -193,7 +193,7 @@ def transfer_dms_services(ssh_conn, artifacts_path):
             ugate_ssh_conn_strings('host') = ugate_ip_address
 
             try {
-                info(>>logger, "Reconnecting to device...")
+                info(@logger, "Reconnecting to device...")
                 return SSH ugate_ssh_conn_strings
             }
             except Exception as e {
@@ -229,7 +229,7 @@ def transfer_dms_services(ssh_conn, artifacts_path):
 
         try:
             # 4. Enable usbg-acm and reboot
-            enable_usbg_acm_and_reboot(>>ugate_ssh_conn)
+            enable_usbg_acm_and_reboot(@ugate_ssh_conn)
         finally:
             disconnect ugate_ssh_conn! except:--
 
@@ -238,29 +238,29 @@ def transfer_dms_services(ssh_conn, artifacts_path):
 
         try:
             # 6. Remount RW
-            info(>>logger, "Remounting filesystem as Read-Write...")
+            info(@logger, "Remounting filesystem as Read-Write...")
             ugate_ssh_conn.send_command("mount -o remount,rw /")
 
             # 7. Stop services
-            stop_services(>>ugate_ssh_conn)
+            stop_services(@ugate_ssh_conn)
 
             # 8. Transfer
-            transfer_dms_services(>>ugate_ssh_conn, artifacts_path)
+            transfer_dms_services(@ugate_ssh_conn, artifacts_path)
 
             # 9. Install
-            install_services(>>ugate_ssh_conn)
+            install_services(@ugate_ssh_conn)
 
             # 10. Start services
-            start_services(>>ugate_ssh_conn)
+            start_services(@ugate_ssh_conn)
 
-            info(>>logger, "Deployment completed successfully.")
+            info(@logger, "Deployment completed successfully.")
 
         finally:
-            disconnect(>>ugate_ssh_conn)
+            disconnect(@ugate_ssh_conn)
 
         return MainAttempt = Success
     } except e $Exception {
-        error(>>logger, f"Deployment failed ${e}")
+        error(@logger, f"Deployment failed ${e}")
         return main = 1
     }
 
@@ -272,7 +272,7 @@ def transfer_dms_services(ssh_conn, artifacts_path):
     parser = ArgumentParser(
         argparse, description="Deploy artifacts to U:Gate device")
     add_argument(
-        >>parser
+        @parser
         '--artifacts_path'
         required=True
         help="Local directory containing artifacts")
