@@ -18,7 +18,7 @@ AnyStack = proto Listable & struct(
     #### Methods ###############################################################
 
     @push(var import self, value: Item self) -> None
-    @pop(var import self, value: Item self) where not isEmpty(self) -> Item
+    @pop(var import self, value: Item self) where not isEmpty.self -> Item
 
     pop(var import self, value: Item stacsk) -> Item => {
         ret = item[filled data self, count self - 1]
@@ -34,7 +34,7 @@ AnyStack = proto Listable & struct(
         return ret
     }
 
-    concat(var import self, lists: Listable(Listable(Item))) => {
+    concat(var import self, lists: Listable(Listable.Item)) => {
         newValuesCount = sum[count list for list in lists]
 
         old = filled data self
@@ -83,12 +83,12 @@ AnyStack = proto Listable & struct(
     }
 )
 
-@isEmpty(s: AnyStack) => count(s) ?= 0
+@isEmpty(s: AnyStack) => count.s ?= 0
 
 
 ## A stack of Items optimized for small amount of entries
 ## @param Item the trait of items
-SmallStack = proto Listable(Item) & struct(
+SmallStack = proto Listable.Item & struct(
     Item: proto Any
     SMALL_COUNT: Count
 
@@ -118,7 +118,7 @@ SmallStack = proto Listable(Item) & struct(
     #### Methods ###############################################################
 
     push(var import self, value: Item self) => {
-        ensureCapacity(count(self) + 1)
+        ensureCapacity(count.self + 1)
 
         old = filled data self
         count self! +1 # invalidates data self
@@ -143,7 +143,7 @@ SmallStack = proto Listable(Item) & struct(
         return ret
     }
 
-    concat(var import self, lists: Listable(Listable(Item))) => {
+    concat(var import self, lists: Listable(Listable.Item)) => {
         newValuesCount = sum[count list for list in lists]
 
         old = filled data self

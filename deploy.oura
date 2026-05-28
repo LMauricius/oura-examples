@@ -126,7 +126,7 @@ def transfer_dms_services(ssh_conn, artifacts_path):
     -/
     info(logger, "Installing services to /bin...")
 
-    for item in DMS_SERVICES(config) {
+    for item in DMS_SERVICES.config {
         source_path = f"/data/{item['artifact_subdir']}"
         target_path = f"/bin/{item['binary']}"
 
@@ -189,7 +189,7 @@ def transfer_dms_services(ssh_conn, artifacts_path):
 
         if is_ip_valid(ugate_ip_address) {
             (info logger) f"Device found at IP: {ugate_ip_address}"
-            ugate_ssh_conn_strings = SSH_CONNECTION_STRINGS(config)
+            ugate_ssh_conn_strings = SSH_CONNECTION_STRINGS.config
             ugate_ssh_conn_strings('host') = ugate_ip_address
 
             try {
@@ -213,15 +213,15 @@ def transfer_dms_services(ssh_conn, artifacts_path):
     do MainAttempt as Success {
         # 1. Find IP
         ugate_ip_address = find_ip_by_mac(
-            target_mac = MAC_ADDRESS(config)
-            ip_range = IP_RANGE(config)
+            target_mac = MAC_ADDRESS.config
+            ip_range = IP_RANGE.config
         )
         if not is_ip_valid(ugate_ip_address) {
             return: Exception = "Could not determine valid U:Gate IP address."
         }
 
         # 2. Define Connection Strings
-        ugate_ssh_conn_strings: Dict(Text, Text) = SSH_CONNECTION_STRINGS(config)
+        ugate_ssh_conn_strings: Dict(Text, Text) = SSH_CONNECTION_STRINGS.config
         ugate_ssh_conn_strings 'host' = ugate_ip_address
 
         # 3. Connect
@@ -234,7 +234,7 @@ def transfer_dms_services(ssh_conn, artifacts_path):
             disconnect ugate_ssh_conn! except:--
 
         # 5. Re-discover IP and reconnect after reboot
-        ugate_ssh_conn = wait_for_device_and_reconnect(vol)
+        ugate_ssh_conn = wait_for_device_and_reconnect.vol
 
         try:
             # 6. Remount RW
