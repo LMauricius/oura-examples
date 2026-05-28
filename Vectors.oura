@@ -31,7 +31,7 @@ deserializeNormal(ts::var TextStream) => (Vector3|DeserializationError|InvalidVe
 
     vec = Vector3@[good x, good y, good z] except return DeserializationError
 
-    using Vector3 & non ZERO3@vec:
+    using Vector3 & non ZERO3:vec:
         return normalized vec
     ----
     except return InvalidVectorError

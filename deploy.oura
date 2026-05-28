@@ -114,7 +114,7 @@ def transfer_dms_services(ssh_conn, artifacts_path):
         transfer_file(ssh_conn, local_path, remote_path)
 
 
-@install_services(ssh_conn) => {
+:install_services(ssh_conn) => {
     /-
         Replaces binaries in /bin using explicit steps:
         1. delete old binary
@@ -169,7 +169,7 @@ def transfer_dms_services(ssh_conn, artifacts_path):
 
 
 
-@wait_for_device_and_reconnect => {
+:wait_for_device_and_reconnect => {
     /-
     Re-fetches the device IP after reboot and returns a fresh SSH connection.
     -/
@@ -209,7 +209,7 @@ def transfer_dms_services(ssh_conn, artifacts_path):
 }
 
 
-@main(artifacts_path $Text) => {
+:main(artifacts_path $Text) => {
     do MainAttempt as Success {
         # 1. Find IP
         ugate_ip_address = find_ip_by_mac(
@@ -225,7 +225,7 @@ def transfer_dms_services(ssh_conn, artifacts_path):
         ugate_ssh_conn_strings 'host' = ugate_ip_address
 
         # 3. Connect
-        ugate_ssh_conn = SSH@ugate_ssh_conn_strings
+        ugate_ssh_conn = SSH:ugate_ssh_conn_strings
 
         try:
             # 4. Enable usbg-acm and reboot
@@ -268,7 +268,7 @@ def transfer_dms_services(ssh_conn, artifacts_path):
 }
 
         
-@start(args $ProgramArguments) => {
+:start(args $ProgramArguments) => {
     parser = ArgumentParser(
         argparse, description="Deploy artifacts to U:Gate device")
     add_argument(

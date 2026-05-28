@@ -10,15 +10,15 @@ AnyStack = proto Listable & struct(
     Index = Unsigned64 where this < count
 
     #### Getters ###############################################################
-    @count(import self) -> Count64
+    :count(import self) -> Count64
 
-    @item(import self, index $Index) -> Item
-    @operator item=(var import self, index $Index, value $Item) -> None
+    :item(import self, index $Index) -> Item
+    :operator item=(var import self, index $Index, value $Item) -> None
 
     #### Methods ###############################################################
 
-    @push(var import self, value $Item self) -> None
-    @pop(var import self, value $Item self) where not isEmpty.self -> Item
+    :push(var import self, value $Item self) -> None
+    :pop(var import self, value $Item self) where not isEmpty.self -> Item
 
     pop(var import self, value $Item stacsk) -> Item => {
         ret = item[filled data self, count self - 1]
@@ -57,13 +57,13 @@ AnyStack = proto Listable & struct(
 
     #### Internal Helpers ######################################################
 
-    ## @returns Whether we need SOO
+    ## :returns Whether we need SOO
     _usingSmall(import self) = capacity self <= SMALL_COUNT self
 
-    ## @brief Bytes for unset values
-    _ItemBytes = GarbageBytes(import size(Bytes@Item))
+    ## :brief Bytes for unset values
+    _ItemBytes = GarbageBytes(import size(Bytes:Item))
 
-    ## @brief A buffer holding `count` items, reserved for `capacity` items
+    ## :brief A buffer holding `count` items, reserved for `capacity` items
     _PreallocBuffer = proto struct(
         import [Item, ItemBytes]
 
@@ -73,21 +73,21 @@ AnyStack = proto Listable & struct(
         reserved = Array@[ItemBytes, capacity - count]
     )
 
-    ## @brief Ensures that the stack has enough memory for the capacity,
+    ## :brief Ensures that the stack has enough memory for the capacity,
     ## without modifying the items
     _ensureCapacity(var import self, minCapacity $Unsigned64) => {
         if capacity self < minCapacity and minCapacity > SMALL_COUNT self {            old = filled data self
             capacity self = minCapacity
-            data self = PreallocBuffer[self, count self, minCapacity]@old
+            data self = PreallocBuffer[self, count self, minCapacity]:old
         }
     }
 )
 
-@isEmpty(s $AnyStack) => count.s ?= 0
+:isEmpty(s $AnyStack) => count.s ?= 0
 
 
 ## A stack of Items optimized for small amount of entries
-## @param Item the trait of items
+## :param Item the trait of items
 SmallStack = proto Listable.Item & struct(
     Item $proto Any
     SMALL_COUNT $Count
@@ -166,13 +166,13 @@ SmallStack = proto Listable.Item & struct(
 
     #### Internal Helpers ######################################################
 
-    ## @returns Whether we need SOO
+    ## :returns Whether we need SOO
     _usingSmall(import self) = capacity self <= SMALL_COUNT self
 
-    ## @brief Bytes for unset values
-    _ItemBytes = GarbageBytes(import size(Bytes@Item))
+    ## :brief Bytes for unset values
+    _ItemBytes = GarbageBytes(import size(Bytes:Item))
 
-    ## @brief A buffer holding `count` items, reserved for `capacity` items
+    ## :brief A buffer holding `count` items, reserved for `capacity` items
     _PreallocBuffer = proto struct(
         import [Item, ItemBytes]
 
@@ -182,12 +182,12 @@ SmallStack = proto Listable.Item & struct(
         reserved = Array@[ItemBytes, capacity - count]
     )
 
-    ## @brief Ensures that the stack has enough memory for the capacity,
+    ## :brief Ensures that the stack has enough memory for the capacity,
     ## without modifying the items
     _ensureCapacity(var import self, minCapacity $Unsigned64) => {
         if capacity self < minCapacity and minCapacity > SMALL_COUNT self {            old = filled data self
             capacity self = minCapacity
-            data self = PreallocBuffer[self, count self, minCapacity]@old
+            data self = PreallocBuffer[self, count self, minCapacity]:old
         }
     }
 )

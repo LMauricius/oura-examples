@@ -22,8 +22,8 @@ factoryFunctionPossibleImpl = ABIMod[
 
         pVec $var ArrayList.Int64 = ...[]
         for i in range(0, randSize) {
-            newNum = random(seed<<, uniformDist)
-            append(pVec<<, newNum)
+            newNum = random(>>seed, uniformDist)
+            append(>>pVec, newNum)
         }
 
         return pVec
@@ -32,7 +32,7 @@ factoryFunctionPossibleImpl = ABIMod[
 
 factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else Nil
 
-@main vol => {
+:main vol -> {
     n $Int64 = read(>>console) except {
         write(>>console, "Invalid input; assuming n=0\n")
         return except = 0
