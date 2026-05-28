@@ -1,12 +1,12 @@
 import [ABIMod, CatchStack, CatchLookUp] (module ABI Core)
 
-@Exceptional(E: Any) => proto ((storage = CatchStack) as ABIMod).E
+@Exceptional(E $Any) => proto ((storage = CatchStack) as ABIMod).E
 
-@Unexpected(E: Any) => proto ((storage = CatchLookUp) as ABIMod).E
+@Unexpected(E $Any) => proto ((storage = CatchLookUp) as ABIMod).E
 
 DivByZero = Exceptional.class
 
-@divided(a: ArgTrait, b: ArgTrait, ArgTrait: proto Number) -> ArgT|DivByZero => {
+@divided(a $ArgTrait, b $ArgTrait, ArgTrait $proto Number) -> ArgT|DivByZero => {
     if b ?= 0 as ArgT {
         return DivByZero
     } else {
