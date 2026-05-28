@@ -20,7 +20,7 @@ length(vec::Vector3) => (sqrt Math)(x vec^2 + y vec^2 + z vec^2)
 normalized(vec::Vector3 & non ZERO3) => Vector3@:
     l = length vec
     return [x vec / l, y vec / l, z vec / l]
-	--
+----
 
 InvalidVectorError = exceptional class
 
@@ -33,6 +33,6 @@ deserializeNormal(ts::var TextStream) => (Vector3|DeserializationError|InvalidVe
 
     using Vector3 & non ZERO3@vec:
         return normalized vec
-    	--
+    ----
     except return InvalidVectorError
-	--
+----

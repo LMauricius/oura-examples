@@ -11,10 +11,10 @@ ImplRecord = ProtoRecord@(
 
         repeat p - 1:
             res! * x
-        	--
+        ----
 
         return res
-    	--
+    ----
 
     h[a, d] => a / d
 )
@@ -24,4 +24,4 @@ terseRoutine(c::Int, d::Int) => Real@:
     m = c * d
     s = c + d
     return m / s
-	--
+----

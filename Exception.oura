@@ -1,16 +1,15 @@
-import (ABISpec, CatchStack, CatchLookUp) module ABI Core
+import [ABIMod, CatchStack, CatchLookUp] (module ABI Core)
 
-exceptional(E::Any) => proto E & ABISpec@(storage = CatchStack)
+@Exceptional(E: Any) => proto ((storage = CatchStack) as ABIMod)(E)
 
-unexpected(E::Any) => E & ABISpec@(storage = CatchLookUp)
+@Unexpected(E: Any) => proto ((storage = CatchLookUp) as ABIMod)(E)
 
-DivByZero = exceptional class
+DivByZero = Exceptional(class)
 
-divided(a::ArgT, b::ArgT, ArgT::proto Number = auto) => ArgT|DivByZero@:
-    if b ?= ArgT@0:
+@divided(a: ArgTrait, b: ArgTrait, ArgTrait: proto Number) -> ArgT|DivByZero => {
+    if b ?= 0 as ArgT {
         return DivByZero
-    	--
-    else:
+    } else {
         return a / b
-    	--
-	--
+    }
+}
