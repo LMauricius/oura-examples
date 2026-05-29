@@ -5,13 +5,13 @@ Player = proto struct SceneObject & Animable & (
 
 hurt(targetPlayer $var Player, amount $Real) => {
     if amount >= health'targetPlayer {
-        health'targetPlayer = 0
+        @health'targetPlayer = 0
         @lives'targetPlayer - 1
         playAnim(@targetPlayer, "Dying")
     }
     else {
         @health'targetPlayer - amount
-        -- ^ Equivalent to @health'targetPlayer = health'targetPlayer - amount
+        --- ^ Equivalent to @health'targetPlayer = health'targetPlayer - amount
 
         if amount < 40 {
             playAnim(@targetPlayer, "Hit")
@@ -32,6 +32,6 @@ action(myPlayer $var Player, otherPlayer $var Player) => {
 
     /-
     LONGER: attack(attacker = @myPlayer, target = @otherPlayer)
-    EXPLICIT: (myPlayer << attacker, otherPlayer << target) = attack(attacker = myPlayer, target = otherPlayer)
+    EXPLICIT: (@myPlayer = attacker, @otherPlayer = target) = attack(attacker = myPlayer, target = otherPlayer)
     -/
 }
