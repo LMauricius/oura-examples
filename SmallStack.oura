@@ -51,8 +51,8 @@ AnyStack = proto Listable & struct(
     _count $var Unsigned64
     _capacity $var Unsigned64
     _data $(
-        (count, SMALL_COUNT) as proto PreallocBuffer if usingSmall.self
-        else (count, capacity) as proto PreallocBuffer
+        proto PreallocBuffer:(count, SMALL_COUNT) if usingSmall.self
+        else proto PreallocBuffer:(count, capacity)
     ) var 
 
     ---- Internal Helpers ------------------------------------------------------
@@ -61,7 +61,7 @@ AnyStack = proto Listable & struct(
     _usingSmall(import self) = True if capacity.self <= SMALL_COUNT.self else False
 
     -- @brief Bytes for unset values
-    _ItemBytes = GarbageBytesOf(import size(Item as proto Bytes))
+    _ItemBytes = GarbageBytesOf(import size(proto Bytes:Item))
 
     -- @brief A buffer holding `count` items, reserved for `capacity` items
     _PreallocBuffer = proto struct(
@@ -161,8 +161,8 @@ SmallStack = proto Listable.Item & struct(
     _count $var Unsigned64
     _capacity $var Unsigned64
     _data $(
-        (count, SMALL_COUNT) as proto PreallocBuffer if usingSmall.self
-        else (count, capacity) as proto PreallocBuffer
+        proto PreallocBuffer:(count, SMALL_COUNT) if usingSmall.self
+        else proto PreallocBuffer:(count, capacity)
     ) var 
 
     ---- Internal Helpers ------------------------------------------------------
@@ -171,7 +171,7 @@ SmallStack = proto Listable.Item & struct(
     _usingSmall(import self) = True if capacity.self <= SMALL_COUNT.self else False
 
     -- @brief Bytes for unset values
-    _ItemBytes = GarbageBytesOf(import size(Item as proto Bytes))
+    _ItemBytes = GarbageBytesOf(import size(proto Bytes:Item))
 
     -- @brief A buffer holding `count` items, reserved for `capacity` items
     _PreallocBuffer = proto struct(
