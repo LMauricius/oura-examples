@@ -51,14 +51,14 @@ AnyStack = proto Listable & struct(
     _count $var Unsigned64
     _capacity $var Unsigned64
     _data $(
-        proto PreallocBuffer:(count, SMALL_COUNT) if usingSmall.self
+        proto PreallocBuffer:(count, SMALL_COUNT) if self is UsingSmall
         else proto PreallocBuffer:(count, capacity)
     ) var 
 
     ---- Internal Helpers ------------------------------------------------------
 
     // @returns Whether we need SOO
-    _usingSmall(import self) = True if capacity.self <= SMALL_COUNT.self else False
+    _UsingSmall = self where capacity <= SMALL_COUNT
 
     -- @brief Bytes for unset values
     _ItemBytes = GarbageBytesOf(import size(proto Bytes:Item))
@@ -84,7 +84,7 @@ AnyStack = proto Listable & struct(
     }
 )
 
-isEmpty(s $AnyStack) => True if count.s ?= 0 else False
+Empty(s $AnyStack) => s where count ?= 0
 
 
 -- A stack of Items optimized for small amount of entries
@@ -114,7 +114,7 @@ SmallStack = proto Listable.Item & struct(
         item(filled.data.self, index) = value
     }
 
-    isEmpty(import self) => True if count.self ?= 0 else False
+    Empty => self where count.self ?= 0
 
     ---- Methods ----------------------------------------------------------------
 
@@ -161,14 +161,14 @@ SmallStack = proto Listable.Item & struct(
     _count $var Unsigned64
     _capacity $var Unsigned64
     _data $(
-        proto PreallocBuffer:(count, SMALL_COUNT) if usingSmall.self
+        proto PreallocBuffer:(count, SMALL_COUNT) if self is UsingSmall
         else proto PreallocBuffer:(count, capacity)
     ) var 
 
     ---- Internal Helpers ------------------------------------------------------
 
     -- @returns Whether we need SOO
-    _usingSmall(import self) = True if capacity.self <= SMALL_COUNT.self else False
+    _UsingSmall = self where capacity <= SMALL_COUNT
 
     -- @brief Bytes for unset values
     _ItemBytes = GarbageBytesOf(import size(proto Bytes:Item))
