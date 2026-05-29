@@ -15,9 +15,9 @@ ZERO3 $Vector3 = (
     z = 0.0
 )
 
-:length(vec $Vector3) => (sqrt.Math)(x vec^2 + y vec^2 + z vec^2)
+:length(vec $Vector3) => (sqrt.Math)(x.vec^2 + y.vec^2 + z.vec^2)
 
-:normalized(vec $Vector3 & non ZERO3) => as Vector3 {
+:normalized(vec $ Vector3 & non.ZERO3) => as Vector3 {
     l = length.vec
     return (x.vec / l, y.vec / l, z.vec / l)
 }
@@ -25,13 +25,13 @@ ZERO3 $Vector3 = (
 InvalidVectorError = exceptional.class
 
 :deserializeNormal(ts $TextStream var) => as (Vector3|DeserializationError|InvalidVectorError) & auto {
-    @ts x = read.Float32
-    @ts y = read.Float32
-    @ts z = read.Float32
+    x = read(@ts, Float32)
+    y = read(@ts, Float32)
+    z = read(@ts, Float32)
 
     vec $Vector3 = (good.x, good.y, good.z) except return DeserializationError
 
     using vec as Vector3 & non ZERO3 {
-        return normalized vec
+        return normalized.vec
     } except return InvalidVectorError
 }
