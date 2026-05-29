@@ -1,26 +1,26 @@
 import (
     ABISpec
     ExternC
-) module ABI.Core
-import ArrayList.module Lists.Std
+) module ABI'Core
+import ArrayList'module Lists'Std
 import (
     Seed
     vol deviceRandom
     random
     UniformDistribution
- ) module Random.Std
-import var console.module IO.Std
+ ) module Random'Std
+import var console'module IO'Std
 
 NO_FACTORY_FUNCTION_DEFINITION $Bool
 
 factoryFunctionPossibleImpl = ABIMod(
     ExternC
-    (import vol deviceRandom) -> ArrayList.Int64: {
-        seed $var Seed = deviceRandom.Int64
-        uniformDist $UniformDistribution.Int64 = range(1, 10)
+    (import vol deviceRandom) -> ArrayList'Int64: {
+        seed $var Seed = deviceRandom'Int64
+        uniformDist $UniformDistribution'Int64 = range(1, 10)
         randSize = random(@seed, uniformDist)
 
-        pVec $var ArrayList.Int64 = []
+        pVec $var ArrayList'Int64 = []
         for i in range(0, randSize) {
             newNum = random(@seed, uniformDist)
             append(@pVec, newNum)
@@ -38,16 +38,16 @@ main vol => {
         return except = 0
     }
     
-    import () vol -> ArrayList.Int64:factoryFunction except {
+    import () vol -> ArrayList'Int64:factoryFunction except {
         write(@console, "factoryFunction not defined!\n")
         return main = 0
     }
 
-    vecs $ArrayList.ArrayList.Int64 = [factoryFunction() for range(0, n)]
+    vecs $ArrayList'ArrayList'Int64 = [factoryFunction() for range(0, n)]
 
     acc = var 0
     for vec in vecs {
-        using frontInd = Index.vec:0 {
+        using frontInd = Index'vec:0 {
             @acc +item(vec, frontInd)
         }
         except {

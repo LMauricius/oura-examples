@@ -4,7 +4,7 @@ Exceptional(E $Any) => proto ABIMod((storage = CatchStack), E)
 
 Unexpected(E $Any) => proto ABIMod((storage = CatchLookUp), E)
 
-DivByZero = Exceptional.class
+DivByZero = Exceptional'class
 
 divided(a $ArgTrait, b $ArgTrait, ArgTrait $proto Number) => ArgT|DivByZero: {
     if b ?= ArgT:0 {

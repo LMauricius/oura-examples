@@ -17,32 +17,32 @@ AnyStack = proto Listable & struct(
 
     ---- Methods ----------------------------------------------------------------
 
-    push(import var self, value $Item.self) -> None
-    pop(import var self, value $Item.self) where not isEmpty.self -> Item
+    push(import var self, value $Item'self) -> None
+    pop(import var self, value $Item'self) where not isEmpty'self -> Item
 
     pop(import var self, value $Item stacsk) -> Item => {
-        ret = item(filled.data.self, count.self - 1)
+        ret = item(filled'data'self, count'self - 1)
 
-        old = items(filled.data.self, range(0, count.self - 1))
-        count.self! -1 -- invalidates data.self
-        data.self = (
-            count = count.self
-            capacity = capacity.self
+        old = items(filled'data'self, range(0, count'self - 1))
+        count'self! -1 -- invalidates data'self
+        data'self = (
+            count = count'self
+            capacity = capacity'self
             filled = old
         )
 
         return ret
     }
 
-    concat(import var self, lists $Listable.Listable.Item) => {
-        newValuesCount = sum[count.list for list in lists]
+    concat(import var self, lists $Listable'Listable'Item) => {
+        newValuesCount = sum[count'list for list in lists]
 
-        old = filled.data.self
-        @count.self + newValuesCount -- invalidates data.self
-        data.self = (
-            count = count.self
-            capacity = count.self + newValuesCount
-            filled = concat(old, concat.lists)
+        old = filled'data'self
+        @count'self + newValuesCount -- invalidates data'self
+        data'self = (
+            count = count'self
+            capacity = count'self + newValuesCount
+            filled = concat(old, concat'lists)
         )
     }
 
@@ -76,10 +76,10 @@ AnyStack = proto Listable & struct(
     -- @brief Ensures that the stack has enough memory for the capacity,
     -- without modifying the items
     _ensureCapacity(import var self, minCapacity $Unsigned64) => {
-        if capacity.self < minCapacity and minCapacity > SMALL_COUNT.self {
-            oldItems = filled.data.self
-            capacity.self = minCapacity
-            data.self = (count.self, minCapacity, oldItems)
+        if capacity'self < minCapacity and minCapacity > SMALL_COUNT'self {
+            oldItems = filled'data'self
+            capacity'self = minCapacity
+            data'self = (count'self, minCapacity, oldItems)
         }
     }
 )
@@ -89,7 +89,7 @@ Empty(s $AnyStack) => s where count ?= 0
 
 -- A stack of Items optimized for small amount of entries
 -- @param Item the trait of items
-SmallStack = proto Listable.Item & struct(
+SmallStack = proto Listable'Item & struct(
     Item $proto Any
     SMALL_COUNT $Count
 
@@ -104,55 +104,55 @@ SmallStack = proto Listable.Item & struct(
     import count
 
     items(import self out stop) => {
-        for item in filled.data.self{
+        for item in filled'data'self{
             stop item
         }
     }
 
-    item(import self, index $Index) => item(filled.data.self, index)
+    item(import self, index $Index) => item(filled'data'self, index)
     operator item(import self, index $Index) = (value $Item) => {
-        item(filled.data.self, index) = value
+        item(filled'data'self, index) = value
     }
 
-    Empty => self where count.self ?= 0
+    Empty => self where count'self ?= 0
 
     ---- Methods ----------------------------------------------------------------
 
-    push(import var self, value $Item.self) => {
-        ensureCapacity(count.self + 1)
+    push(import var self, value $Item'self) => {
+        ensureCapacity(count'self + 1)
 
-        oldItems = filled.data.self
-        @count.self + 1 -- invalidates data.self
-        data.self = PreallocBuffer@(
-            count = count.self
+        oldItems = filled'data'self
+        @count'self + 1 -- invalidates data'self
+        data'self = PreallocBuffer@(
+            count = count'self
             capacity = minCapacity
             filled = concat(oldItems, (value))
         )
     }
 
     pop(import var self, value $Item stacsk) -> Item => {
-        ret = item(filled.data.self, count.self - 1)
+        ret = item(filled'data'self, count'self - 1)
 
-        oldItems = items(filled.data.self, range(0, count.self - 1))
-        count.self! -1 -- invalidates data.self
-        data.self = PreallocBuffer@(
-            count = count.self
-            capacity = capacity.self
+        oldItems = items(filled'data'self, range(0, count'self - 1))
+        count'self! -1 -- invalidates data'self
+        data'self = PreallocBuffer@(
+            count = count'self
+            capacity = capacity'self
             filled = oldItems
         )
 
         return ret
     }
 
-    concat(import var self, lists $Listable.Listable.Item) => {
-        newValuesCount = sum[count.list for list in lists]
+    concat(import var self, lists $Listable'Listable'Item) => {
+        newValuesCount = sum[count'list for list in lists]
 
-        oldItems = filled.data.self
-        @count.self + newValuesCount -- invalidates data.self
-        data.self = (
-            count = count.self
-            capacity = count.self + newValuesCount
-            filled = concat(oldItems, concat.lists)
+        oldItems = filled'data'self
+        @count'self + newValuesCount -- invalidates data'self
+        data'self = (
+            count = count'self
+            capacity = count'self + newValuesCount
+            filled = concat(oldItems, concat'lists)
         )
     }
 
@@ -186,10 +186,10 @@ SmallStack = proto Listable.Item & struct(
     -- @brief Ensures that the stack has enough memory for the capacity,
     -- without modifying the items
     _ensureCapacity(import var self, minCapacity $Unsigned64) => {
-        if capacity.self < minCapacity and minCapacity > SMALL_COUNT.self {
-            oldItems = filled.data.self
-            capacity.self = minCapacity
-            data.self = (count.self, minCapacity, oldItems)
+        if capacity'self < minCapacity and minCapacity > SMALL_COUNT'self {
+            oldItems = filled'data'self
+            capacity'self = minCapacity
+            data'self = (count'self, minCapacity, oldItems)
         }
     }
 )
