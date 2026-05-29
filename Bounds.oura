@@ -2,26 +2,26 @@ import Exceptional.module Exception
 
 OutOfBoundsError = Exceptional.class
 
-IntList = proto struct[
+IntList = proto struct(
     _reservedBuffer $var Buffer.Int32
     _usedLen $var Count
-]
+)
 
-:len[arr $IntList] => usedLen.arr
+:len(arr $IntList) => usedLen.arr
 
-:Index[arr $ref IntList] => Count & [import arr] where this < len.arr
+:Index(arr $ref IntList) => Count & (import arr) where this < len.arr
 
-:safeItem[arr $IntList, ind $Index arr] => reservedBuffer[arr, ind]
-
-
+:safeItem(arr $IntList, ind $Index arr) => reservedBuffer(arr, ind)
 
 
 
-:sum2Items[arr $IntList, ind1 $Count, ind2 $Count] => as Int32|OutOfBoundsError {
+
+
+:sum2Items(arr $IntList, ind1 $Count, ind2 $Count) => as Int32|OutOfBoundsError {
     res $Int32|OutOfBoundsError
     
     using ind1 as Index.arr, ind2 as Index.arr {
-        res = safeItem[arr, ind1] + safeItem[arr, ind2]
+        res = safeItem(arr, ind1) + safeItem(arr, ind2)
     }
     except {
         res = OutOfBoundsError
