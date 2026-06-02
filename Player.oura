@@ -11,7 +11,7 @@ hurt(targetPlayer $var Player, amount $Real) => {
     }
     else {
         @health'targetPlayer - amount
-        --- ^ Equivalent to: @health'targetPlayer = health'targetPlayer - amount
+        /--- ^ Equivalent to: @health'targetPlayer = health'targetPlayer - amount -/
 
         if amount < 40 {
             playAnim(@targetPlayer, "Hit")

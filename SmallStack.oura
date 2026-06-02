@@ -6,17 +6,17 @@ AnyStack = proto Listable & (
 
     _self = this
 
-    ---- Traits ----------------------------------------------------------------
+    /---- Traits ---------------------------------------------------------------/
     Index = Unsigned64 where this < count
     Empty = self where count'self ?= 0
 
-    ---- Getters ----------------------------------------------------------------
+    /---- Getters ---------------------------------------------------------------/
     count(import self) -> Count64
 
     item(import self, index $Index) -> Item
     operator item=(import var self, index $Index, value $Item) -> None
 
-    ---- Methods ----------------------------------------------------------------
+    /---- Methods ---------------------------------------------------------------/
 
     push(import var self, value $Item'self) => $None
     pop(import var self, value $Item'self) where self is non'Empty => $Item
@@ -26,12 +26,14 @@ AnyStack = proto Listable & (
     concat(import var self, lists $Listable'Listable'Item) => $Listable'Listable'Item
 )
 
---- A stack of Items optimized for small amount of entries
---- @param Item the trait of items
+/-
+  A stack of Items optimized for small amount of entries
+  @param Item the trait of items
+-/
 SmallStack = proto AnyStack & struct(
     _self = this
 
-    ---- Getters ----------------------------------------------------------------
+    /---- Getters ---------------------------------------------------------------/
 
     import capacity
     import count
@@ -43,7 +45,7 @@ SmallStack = proto AnyStack & struct(
         item(data'self, index) = value
     }
 
-    ---- Methods ----------------------------------------------------------------
+    /---- Methods ---------------------------------------------------------------/
 
     push(import var self, value $Item'self) => {
         ensureCapacity(count'self + 1)
@@ -71,7 +73,7 @@ SmallStack = proto AnyStack & struct(
         data'self = PreallocBuffer'concat(oldItems, concat'lists)
     }
 
-    ---- Internal data ----------------------------------------------------------
+    /---- Internal data ---------------------------------------------------------/
 
     SMALL_COUNT $Count
 
@@ -79,20 +81,22 @@ SmallStack = proto AnyStack & struct(
     _capacity $var Unsigned64
     _data $var PreallocBuffer
 
-    ---- Internal Helpers ------------------------------------------------------
+    /---- Internal Helpers -----------------------------------------------------/
 
-    --- @returns Whether we need SOO
+    /- @returns Whether we need SOO -/
     _UsingSmall = self where capacity <= SMALL_COUNT
 
-    --- @brief Bytes for unset values
+    /- @brief Bytes for unset values -/
     _ItemBytes = GarbageBytes(import size'Bytes'Item)
 
-    --- @brief A buffer holding `count` items, reserved for `capacity` items
+    /- @brief A buffer holding `count` items, reserved for `capacity` items -/
     _PreallocBuffer = proto struct Array(Item, count) &
         & MinSized(Memory, SMALL_COUNT * size'Bytes'Item)
 
-    --- @brief Ensures that the stack has enough memory for the capacity,
-    --- without modifying the items
+    /-
+      @brief Ensures that the stack has enough memory for the capacity,
+      without modifying the items
+    -/
     _ensureCapacity(import var self, minCapacity $Unsigned64) => {
         if capacity'self < minCapacity and minCapacity > SMALL_COUNT'self {
             oldItems = Array'data'self

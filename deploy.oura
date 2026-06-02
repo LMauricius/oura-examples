@@ -63,7 +63,7 @@ def start_services(ssh_conn)'
         start_command = f"systemctl start {service_name}"
         status_command = f"systemctl is-active {service_name}"
         info(logger, f"Starting {service_name}'''")
-        WAIT_TIME = 5  --- seconds to wait before checking status
+        WAIT_TIME = 5  /--- seconds to wait before checking status
         try'
             ssh_conn'send_command(start_command)
             time'sleep(WAIT_TIME)
@@ -103,7 +103,7 @@ def transfer_dms_services(ssh_conn, artifacts_path)'
 
     info(logger, f"Scanning '{artifacts_path}. for configured artifacts'''")
 
-    --- Ensure /data exists
+    /--- Ensure /data exists
     ssh_conn'send_command("mkdir -p /data")
 
     for item in config'DMS_SERVICES'
@@ -133,24 +133,24 @@ install_services(ssh_conn) => {
         info(logger, f"Installing {item('binary')}'''")
 
         do as Success {
-            --- Step 0 $verify source exists before doing anything destructive
+            /--- Step 0 $verify source exists before doing anything destructive
             info(logger, f"Verifying source exists ${source_path}")
             send_command(@ssh_conn, f'test -f "{source_path}"')
 
-            --- Step 1 $delete old binary
+            /--- Step 1 $delete old binary
             info(logger, f"Deleting old binary ${target_path}")
             send_command(@ssh_conn, f'rm -f "{target_path}"')
 
-            --- Step 2 $verify old binary does not exist
+            /--- Step 2 $verify old binary does not exist
             info(logger, f"Verifying old binary is gone ${target_path}")
             send_command(@ssh_conn, f'test ! -e "{target_path}"')
 
-            --- Step 3 $create new binary
+            /--- Step 3 $create new binary
             info(logger, f"Creating new binary ${source_path} -> {target_path}")
             send_command(@ssh_conn, f'cp "{source_path}" "{target_path}"')
             send_command(@ssh_conn, f'chmod +x "{target_path}"')
 
-            --- Step 4 $verify new binary exists and is executable
+            /--- Step 4 $verify new binary exists and is executable
             info(logger, f"Verifying new binary exists and is executable ${target_path}")
             send_command(@ssh_conn, f'test -f "{target_path}"')
             send_command(@ssh_conn, f'test -x "{target_path}"')
@@ -211,7 +211,7 @@ wait_for_device_and_reconnect => {
 
 main(artifacts_path $Text) => {
     do MainAttempt as Success {
-        --- 1. Find IP
+        /--- 1. Find IP
         ugate_ip_address = find_ip_by_mac(
             target_mac = MAC_ADDRESS'config
             ip_range = IP_RANGE'config
@@ -220,37 +220,37 @@ main(artifacts_path $Text) => {
             return $Exception = "Could not determine valid U'Gate IP address'"
         }
 
-        --- 2. Define Connection Strings
+        /--- 2. Define Connection Strings
         ugate_ssh_conn_strings $Dict(Text, Text) = SSH_CONNECTION_STRINGS'config
         ugate_ssh_conn_strings 'host. = ugate_ip_address
 
-        --- 3. Connect
+        /--- 3. Connect
         ugate_ssh_conn = SSH'ugate_ssh_conn_strings
 
         try'
-            --- 4. Enable usbg-acm and reboot
+            /--- 4. Enable usbg-acm and reboot
             enable_usbg_acm_and_reboot(@ugate_ssh_conn)
         finally'
             disconnect ugate_ssh_conn! except'--
 
-        --- 5. Re-discover IP and reconnect after reboot
+        /--- 5. Re-discover IP and reconnect after reboot
         ugate_ssh_conn = wait_for_device_and_reconnect'vol
 
         try'
-            --- 6. Remount RW
+            /--- 6. Remount RW
             info(@logger, "Remounting filesystem as Read-Write'''")
             ugate_ssh_conn'send_command("mount -o remount,rw /")
 
-            --- 7. Stop services
+            /--- 7. Stop services
             stop_services(@ugate_ssh_conn)
 
-            --- 8. Transfer
+            /--- 8. Transfer
             transfer_dms_services(@ugate_ssh_conn, artifacts_path)
 
-            --- 9. Install
+            /--- 9. Install
             install_services(@ugate_ssh_conn)
 
-            --- 10. Start services
+            /--- 10. Start services
             start_services(@ugate_ssh_conn)
 
             info(@logger, "Deployment completed successfully'")
