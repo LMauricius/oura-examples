@@ -1,6 +1,6 @@
 import Dict'module Std
 
-WeekNums = Dict:(
+WeekNums = Dict(
     String, Int8, [
         "Monday"    -> 1
         "Tuesday"   -> 2

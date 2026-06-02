@@ -45,7 +45,7 @@ SmallStack = proto AnyStack & struct(
     }
 
     item(import self, index $Index) => item(filled'data'self, index)
-    item(import self, index $Index) == (value $Item) => {
+    operator item(import self, index $Index) = (value $Item) => {
         item(filled'data'self, index) = value
     }
 
@@ -56,19 +56,19 @@ SmallStack = proto AnyStack & struct(
 
         oldItems = filled'data'self
         @count'self + 1 --- invalidates data'self
-        data'self = PreallocBuffer@(
+        data'self = PreallocBuffer(
             count = count'self
             capacity = minCapacity
             filled = concat(oldItems, (value))
         )
     }
 
-    pop(import var self, value $Item stacsk) -> Item => {
+    pop(import var self, value $Item stacsk) => Item'{
         ret = item(filled'data'self, count'self - 1)
 
         oldItems = items(filled'data'self, range(0, count'self - 1))
         @count'self -1 --- invalidates data'self
-        data'self = PreallocBuffer@(
+        data'self = new PreallocBuffer(
             count = count'self
             capacity = capacity'self
             filled = oldItems
@@ -94,8 +94,8 @@ SmallStack = proto AnyStack & struct(
     _count $var Unsigned64
     _capacity $var Unsigned64
     _data $(
-        proto PreallocBuffer:(count, SMALL_COUNT) if self is UsingSmall
-        else proto PreallocBuffer:(count, capacity)
+        proto PreallocBuffer(count, SMALL_COUNT) if self is UsingSmall
+        else proto PreallocBuffer(count, capacity)
     ) var 
 
     ---- Internal Helpers ------------------------------------------------------
@@ -104,7 +104,7 @@ SmallStack = proto AnyStack & struct(
     _UsingSmall = self where capacity <= SMALL_COUNT
 
     --- @brief Bytes for unset values
-    _ItemBytes = GarbageBytes:(import size(proto Bytes:Item))
+    _ItemBytes = GarbageBytes(import size(proto Bytes'Item))
 
     --- @brief A buffer holding `count` items, reserved for `capacity` items
     _PreallocBuffer = proto struct(

@@ -9,7 +9,7 @@ Vector3 = proto struct(
     z $Float32
 )
 
-ZERO3 $Vector3 = (
+ZERO3 = Vector3(
     x = 0.0
     y = 0.0
     z = 0.0
@@ -17,21 +17,23 @@ ZERO3 $Vector3 = (
 
 length(vec $Vector3) => (sqrt'Math)(x'vec^2 + y'vec^2 + z'vec^2)
 
-normalized(vec $ Vector3 & non'ZERO3) => Vector3: {
+normalized(vec $Vector3 & non'ZERO3) => Vector3'{
     l = length'vec
     return (x'vec / l, y'vec / l, z'vec / l)
 }
 
 InvalidVectorError = exceptional'class
 
-deserializeNormal(ts $TextStream var) => (Vector3|DeserializationError|InvalidVectorError) & auto: {
+deserializeNormal(ts $TextStream var) => (
+    (Vector3|DeserializationError|InvalidVectorError) & auto
+)'{
     x = read(@ts, Float32)
     y = read(@ts, Float32)
     z = read(@ts, Float32)
 
     vec $Vector3 = (good'x, good'y, good'z) except return DeserializationError
 
-    using Vector3 & non'ZERO3:vec {
+    using vec $Vector3 & non'ZERO3 {
         return normalized'vec
     } except return InvalidVectorError
 }

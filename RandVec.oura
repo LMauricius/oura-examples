@@ -15,7 +15,7 @@ NO_FACTORY_FUNCTION_DEFINITION $Bool
 
 factoryFunctionPossibleImpl = ABIMod(
     ExternC
-    (import vol deviceRandom) -> ArrayList'Int64: {
+    (import vol deviceRandom) -> ArrayList'Int64'{
         seed $var Seed = deviceRandom'Int64
         uniformDist $UniformDistribution'Int64 = range(1, 10)
         randSize = random(@seed, uniformDist)
@@ -38,7 +38,7 @@ main vol => {
         return except = 0
     }
     
-    import () vol -> ArrayList'Int64:factoryFunction except {
+    import factoryFunction $() vol -> ArrayList'Int64 except {
         write(@console, "factoryFunction not defined!\n")
         return main = 0
     }
@@ -47,7 +47,7 @@ main vol => {
 
     acc = var 0
     for vec in vecs {
-        using frontInd = Index'vec:0 {
+        using frontInd = Index'vec'0 {
             @acc +item(vec, frontInd)
         }
         except {
