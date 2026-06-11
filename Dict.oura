@@ -1,4 +1,4 @@
-import Dict'module Std
+use Dict'module Std
 
 WeekNums = Dict(
     String, Int8, [

@@ -1,7 +1,7 @@
-import module Math'Std
-import exceptional'module Exception
-import GoodResult'module Core
-import (TextStream, DeserializationError)module IO'Std
+use module Math'Std
+use exceptional'module Exception
+use GoodResult'module Core
+use (TextStream, DeserializationError)module IO'Std
 
 Vector3 = proto struct(
     x $Float32

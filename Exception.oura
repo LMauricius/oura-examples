@@ -1,4 +1,4 @@
-import (ABIMod, CatchStack, CatchLookUp) module ABI Core
+use (ABIMod, CatchStack, CatchLookUp) module ABI Core
 
 Exceptional(E $Any) => proto ABIMod((storage = CatchStack), E)
 

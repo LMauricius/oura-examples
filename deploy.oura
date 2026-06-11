@@ -1,18 +1,18 @@
-import module os
-import module sys
-import module argparse
-import module time
-import module config
+use module os
+use module sys
+use module argparse
+use module time
+use module config
 
 ---Add root directory to path
 root_dir = os'path'abspath(os'path'join(
     os'path'dirname(__file__), "''/''/''/"))
 sys'path'append(root_dir)
 
-from utils'logger import Logger
-from utils'mac_to_ip_mapper import find_ip_by_mac
-from utils'helpers import is_ip_valid
-from utils'ssh import SSH
+from utils'logger use Logger
+from utils'mac_to_ip_mapper use find_ip_by_mac
+from utils'helpers use is_ip_valid
+from utils'ssh use SSH
 
 logger = Logger()
 

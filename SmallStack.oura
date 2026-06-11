@@ -11,19 +11,19 @@ AnyStack = proto Listable & (
     Empty = self where count'self ?= 0
 
     /**** Getters **************************************************************************/
-    count(import self) -> Count64
+    count(use self) -> Count64
 
-    item(import self, index $Index) -> Item
-    operator item=(import var self, index $Index, value $Item) -> None
+    item(use self, index $Index) -> Item
+    operator item=(use var self, index $Index, value $Item) -> None
 
     /**** Methods **************************************************************************/
 
-    push(import var self, value $Item'self) => $None
-    pop(import var self, value $Item'self) where self is non'Empty => $Item
+    push(use var self, value $Item'self) => $None
+    pop(use var self, value $Item'self) where self is non'Empty => $Item
 
-    pop(import var self, value $Item'self) => $Item
+    pop(use var self, value $Item'self) => $Item
 
-    concat(import var self, lists $Listable'Listable'Item) => $Listable'Listable'Item
+    concat(use var self, lists $Listable'Listable'Item) => $Listable'Listable'Item
 )
 
 /*
@@ -35,19 +35,19 @@ SmallStack = proto AnyStack & struct(
 
     /**** Getters **************************************************************************/
 
-    import capacity
-    import count
+    use capacity
+    use count
 
-    items(import self out stop) => items'data'self
+    items(use self out stop) => items'data'self
 
-    item(import self, index $Index) => item(data'self, index)
-    operator item(import var self, index $Index) = (value $Item) => {
+    item(use self, index $Index) => item(data'self, index)
+    operator item(use var self, index $Index) = (value $Item) => {
         item(data'self, index) = value
     }
 
     /**** Methods **************************************************************************/
 
-    push(import var self, value $Item'self) => {
+    push(use var self, value $Item'self) => {
         ensureCapacity(count'self + 1)
 
         oldItems = Array'data'self
@@ -55,7 +55,7 @@ SmallStack = proto AnyStack & struct(
         data'self = PreallocBuffer'concat(oldItems, value)
     }
 
-    pop(import var self, value $Item stacsk) => Item'{
+    pop(use var self, value $Item stacsk) => Item'{
         ret = item(data'self, count'self - 1)
 
         oldItems = Array'items(data'self, range(0, count'self - 1))
@@ -65,7 +65,7 @@ SmallStack = proto AnyStack & struct(
         return ret
     }
 
-    concat(import var self, lists $Listable'Listable'Item) => {
+    concat(use var self, lists $Listable'Listable'Item) => {
         newValuesCount = sum[count'list for list in lists]
 
         oldItems = filled'data'self
@@ -87,7 +87,7 @@ SmallStack = proto AnyStack & struct(
     _UsingSmall = self where capacity <= SMALL_COUNT
 
     /* @brief Bytes for unset values **/
-    _ItemBytes = GarbageBytes(import size'Bytes'Item)
+    _ItemBytes = GarbageBytes(use size'Bytes'Item)
 
     /* @brief A buffer holding `count` items, reserved for `capacity` items **/
     _PreallocBuffer = proto struct Array(Item, count) &
@@ -97,7 +97,7 @@ SmallStack = proto AnyStack & struct(
       @brief Ensures that the stack has enough memory for the capacity,
       without modifying the items
     **/
-    _ensureCapacity(import var self, minCapacity $Unsigned64) => {
+    _ensureCapacity(use var self, minCapacity $Unsigned64) => {
         if capacity'self < minCapacity and minCapacity > SMALL_COUNT'self {
             oldItems = Array'data'self
             capacity'self = minCapacity
@@ -111,15 +111,15 @@ DEFAULT_SMALL_COUNT = Count'16
 operator SmallStack(Item $proto Any) => proto SmallStack(Item, DEFAULT_SMALL_COUNT)
 
 SmallStack(Item $proto Any, SMALL_COUNT $Count) => proto SmallStack(
-    import proto Item
-    import SMALL_COUNT
+    use proto Item
+    use SMALL_COUNT
 )
 
 operator SmallStack(list $Listable) => SmallStack(list, DEFAULT_SMALL_COUNT)
 
 operator SmallStack(list $Listable, SMALL_COUNT $Count) => SmallStack & (
     Item = proto Item'list
-    import SMALL_COUNT
+    use SMALL_COUNT
     count = count'list
     capacity = count'list
     data = PreallocBuffer'items'list

@@ -1,4 +1,4 @@
-import Exceptional'module Exception
+use Exceptional'module Exception
 
 OutOfBoundsError = Exceptional'class
 
@@ -9,7 +9,7 @@ IntList = proto struct(
 
 len(arr $IntList) => usedLen'arr
 
-Index(arr $ref IntList) => Count & (import arr) where this < len'arr
+Index(arr $ref IntList) => Count & (use arr) where this < len'arr
 
 safeItem(arr $IntList, ind $Index arr) => reservedBuffer(arr, ind)
 
