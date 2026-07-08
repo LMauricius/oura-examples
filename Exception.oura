@@ -6,7 +6,7 @@ Unexpected(E $Any) => proto ABIMod((storage = CatchLookUp), E)
 
 DivByZero = Exceptional'class
 
-divided(a $ArgTrait, b $ArgTrait, ArgTrait $proto Number) => (ArgTrait|DivByZero)'{
+divided(a $ArgTrait, b $ArgTrait, ArgTrait $proto Number) => ArgTrait|DivByZero{
     if b ?= ArgTrait'0 {
         return DivByZero
     } else {

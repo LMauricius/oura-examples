@@ -55,7 +55,7 @@ SmallStack = proto AnyStack & struct(
         data'self = PreallocBuffer'concat(oldItems, value)
     }
 
-    pop(use var self, value $Item stacsk) => Item'{
+    pop(use var self, value $Item stacsk) => Item{
         ret = item(data'self, count'self - 1)
 
         oldItems = Array'items(data'self, range(0, count'self - 1))

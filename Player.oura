@@ -8,15 +8,13 @@ hurt(targetPlayer $var Player, amount $Real) => {
         @health'targetPlayer = 0
         @lives'targetPlayer - 1
         playAnim(@targetPlayer, "Dying")
-    }
-    else {
+    } else {
         @health'targetPlayer - amount
         /* ^ Equivalent to: @health'targetPlayer = health'targetPlayer - amount */
 
         if amount < 40 {
             playAnim(@targetPlayer, "Hit")
-        }
-        else {
+        } else {
             playAnim(@targetPlayer, "Pain")
         }
     }

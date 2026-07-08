@@ -17,13 +17,12 @@ safeItem(arr $IntList, ind $Index'arr) => reservedBuffer(arr, ind)
 
 
 
-sum2Items(arr $IntList, ind1 $Count, ind2 $Count) => (Int32|OutOfBoundsError)'{
+sum2Items(arr $IntList, ind1 $Count, ind2 $Count) => Int32|OutOfBoundsError{
     res $Int32|OutOfBoundsError
     
     if Index'arr use ind1, Index'arr use ind2 {
         res = safeItem(arr, ind1) + safeItem(arr, ind2)
-    }
-    except {
+    } except {
         res = OutOfBoundsError
     }
 
