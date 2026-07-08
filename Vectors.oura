@@ -31,9 +31,9 @@ deserializeNormal(ts $TextStream var) => (
     y = read(@ts, Float32)
     z = read(@ts, Float32)
 
-    vec $Vector3 = (good'x, good'y, good'z) except return DeserializationError
+    vec = Vector3(good'x, good'y, good'z) except return DeserializationError
 
-    using vec $Vector3 & non'ZERO3 {
+    if Vector3 & non'ZERO3use vec {
         return normalized'vec
     } except return InvalidVectorError
 }

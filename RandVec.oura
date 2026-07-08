@@ -47,7 +47,7 @@ main vol => {
 
     acc = var 0
     for vec in vecs {
-        using frontInd = Index'vec'0 {
+        if frontInd = Index(vec, 0) {
             @acc +item(vec, frontInd)
         }
         except {
