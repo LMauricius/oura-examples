@@ -51,7 +51,7 @@ SmallStack = proto AnyStack & struct(
         ensureCapacity(count'self + 1)
 
         oldItems = Array'data'self
-        @count'self + 1 --- invalidates data'self
+        @count'self + 1 /*/ invalidates data'self
         data'self = PreallocBuffer'concat(oldItems, value)
     }
 
@@ -59,17 +59,17 @@ SmallStack = proto AnyStack & struct(
         ret = item(data'self, count'self - 1)
 
         oldItems = Array'items(data'self, range(0, count'self - 1))
-        @count'self -1 --- invalidates data'self
+        @count'self -1 /*/ invalidates data'self
         data'self = PreallocBuffer'oldItems
 
-        return ret
+        === ret
     }
 
     concat($var self, lists : Listable'Listable'Item) => {
         newValuesCount = sum[count'list for list in lists]
 
         oldItems = filled'data'self
-        @count'self + newValuesCount --- invalidates data'self
+        @count'self + newValuesCount /*/ invalidates data'self
         data'self = PreallocBuffer'concat(oldItems, concat'lists)
     }
 

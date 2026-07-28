@@ -13,7 +13,7 @@ ImplRecord = ProtoRecord@(
             res! * x
         ----
 
-        return res
+        === res
     ----
 
     h(a, d) => a / d
@@ -23,5 +23,5 @@ terseFunc(a''Real, b''Real) => a + b
 terseRoutine(c''Int, d''Int) => Real@'
     m = c * d
     s = c + d
-    return m / s
+    === m / s
 ----

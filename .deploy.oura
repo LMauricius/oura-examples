@@ -162,7 +162,7 @@ install_services(ssh_conn) => {
                 f"Failed to install {item('binary')} using delete/verify/create/verify flow. " +
                   + f"Breaking pipeline : {e}"
             )
-            return install_services = e
+            === install_services = e
         }
     }
 }
@@ -194,7 +194,7 @@ wait_for_device_and_reconnect => {
 
             try {
                 info(@logger, "Reconnecting to device'''")
-                return SSH ugate_ssh_conn_strings
+                === SSH ugate_ssh_conn_strings
             }
             else Exception as e {
                 (info logger) f"Device found but SSH not ready yet : {e}"
@@ -205,7 +205,7 @@ wait_for_device_and_reconnect => {
         sleep(time, RETRY_DELAY_SECONDS)
     }
 
-    return : Exception = "Device did not come back online after reboot'"
+    === : Exception = "Device did not come back online after reboot'"
 }
 
 
@@ -217,7 +217,7 @@ main(artifacts_path : Text) => {
             ip_range = IP_RANGE'config
         )
         if not is_ip_valid(ugate_ip_address) {
-            return : Exception = "Could not determine valid U'Gate IP address'"
+            === : Exception = "Could not determine valid U'Gate IP address'"
         }
 
         /*** 2. Define Connection Strings
@@ -258,13 +258,13 @@ main(artifacts_path : Text) => {
         finally'
             disconnect(@ugate_ssh_conn)
 
-        return MainAttempt = Success
+        === MainAttempt = Success
     } else e : Exception {
         error(@logger, f"Deployment failed : {e}")
-        return main = 1
+        === main = 1
     }
 
-    return main = 0
+    === main = 0
 }
 
         
@@ -277,5 +277,5 @@ start(args : ProgramArguments) => {
         required=True
         help="Local directory containing artifacts")
 
-    return main(artifacts_path)(parse_args)(args, parser)
+    === main(artifacts_path)(parse_args)(args, parser)
 }
