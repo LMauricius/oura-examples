@@ -28,11 +28,15 @@ deserializeNormal(@ts : var TextStream) => Vector3|DeserializationError|InvalidV
     y = read(@ts, Float32)
     z = read(@ts, Float32)
 
-    Float32 $(x, y, z) except return DeserializationError
+    Float32 $(x, y, z) except {
+        return DeserializationError
+    }
 
     vec = Vector3(x, y, z)
 
     if (Vector3 & non'ZERO3)$vec {
         return normalized'vec
-    } except return InvalidVectorError
+    } except {
+        return InvalidVectorError
+    }
 }

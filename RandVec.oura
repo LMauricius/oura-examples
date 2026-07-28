@@ -33,12 +33,12 @@ factoryFunctionPossibleImpl = ABIMod(
 factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else Nil
 
 main vol => {
-    n = Int64'read(@console, Int64) except {
+    n = Int64'read(@console, Int64) except = {
         write(@console, "Invalid input; assuming n=0\n")
         return except = 0
     }
     
-    (() vol -> : ArrayList'Int64) $factoryFunction except {
+    (() vol -> : ArrayList'Int64) $factoryFunction except = {
         write(@console, "factoryFunction not defined!\n")
         return main = 0
     }
