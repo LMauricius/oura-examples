@@ -1,7 +1,7 @@
-use module Math'Std
-use exceptional'module Exception
-use GoodResult'module Core
-use (TextStream, DeserializationError)module IO'Std
+$module Math'Std
+$exceptional'module Exception
+$GoodResult'module Core
+$(TextStream, DeserializationError)module IO'Std
 
 Vector3 = proto struct(
     x : Float32
@@ -31,7 +31,7 @@ deserializeNormal(ts : TextStream var) => (Vector3|DeserializationError|InvalidV
 
     vec = Vector3(good'x, good'y, good'z) except return DeserializationError
 
-    if Vector3 & non'ZERO3 use vec {
+    if Vector3 & non'ZERO3 $vec {
         return normalized'vec
     } except return InvalidVectorError
 }

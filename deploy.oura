@@ -1,18 +1,18 @@
-use module os
-use module sys
-use module argparse
-use module time
-use module config
+$module os
+$module sys
+$module argparse
+$module time
+$module config
 
 ---Add root directory to path
 root_dir = os'path'abspath(os'path'join(
     os'path'dirname(__file__), "''/''/''/"))
 sys'path'append(root_dir)
 
-from utils'logger use Logger
-from utils'mac_to_ip_mapper use find_ip_by_mac
-from utils'helpers use is_ip_valid
-from utils'ssh use SSH
+from utils'logger $Logger
+from utils'mac_to_ip_mapper $find_ip_by_mac
+from utils'helpers $is_ip_valid
+from utils'ssh $SSH
 
 logger = Logger()
 
