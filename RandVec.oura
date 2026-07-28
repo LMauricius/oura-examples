@@ -1,15 +1,15 @@
 $(
     ABISpec
     ExternC
-) module ABI'Core
-$ArrayList'module Lists'Std
+).ABI.Core
+$ArrayList.Lists.Std
 $(
     Seed
     vol deviceRandom
     random
     UniformDistribution
- ) module Random'Std
-$var console'module IO'Std
+ ).Random.Std
+$var console.IO.Std
 
 NO_FACTORY_FUNCTION_DEFINITION : Bool
 

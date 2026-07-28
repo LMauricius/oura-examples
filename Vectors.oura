@@ -1,7 +1,7 @@
-$module Math'Std
-$exceptional'module Exception
-$GoodResult'module Core
-$(TextStream, DeserializationError)module IO'Std
+$.Math.Std
+$exceptional.Exception
+$GoodResult.Core
+$(TextStream, DeserializationError).IO.Std
 
 Vector3 = proto struct(
     x : Float32
@@ -15,7 +15,7 @@ ZERO3 = Vector3(
     z = 0.0
 )
 
-length(vec : Vector3) => (sqrt'Math)(x'vec^2 + y'vec^2 + z'vec^2)
+length(vec : Vector3) => sqrt.Math(x'vec^2 + y'vec^2 + z'vec^2)
 
 normalized(vec : Vector3 & non'ZERO3) => Vector3{
     l = length'vec
@@ -24,14 +24,14 @@ normalized(vec : Vector3 & non'ZERO3) => Vector3{
 
 InvalidVectorError = exceptional'class
 
-deserializeNormal(ts : TextStream var) => (Vector3|DeserializationError|InvalidVectorError) & auto{
+deserializeNormal(ts : var TextStream) => (Vector3|DeserializationError|InvalidVectorError) & auto{
     x = read(@ts, Float32)
     y = read(@ts, Float32)
     z = read(@ts, Float32)
 
     vec = Vector3(good'x, good'y, good'z) except return DeserializationError
 
-    if Vector3 & non'ZERO3 $vec {
+    if (Vector3 & non'ZERO3)$vec {
         return normalized'vec
     } except return InvalidVectorError
 }

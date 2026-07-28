@@ -1,4 +1,4 @@
-$Exceptional'module Exception
+$Exceptional.Exception
 
 OutOfBoundsError = Exceptional'class
 
