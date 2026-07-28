@@ -33,12 +33,12 @@ factoryFunctionPossibleImpl = ABIMod(
 factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else Nil
 
 main vol => {
-    n = Int64'read(@console, Int64) except = {
+    n = Int64'read(@console, Int64) else = {
         write(@console, "Invalid input; assuming n=0\n")
-        return except = 0
+        return else = 0
     }
     
-    (() vol -> : ArrayList'Int64) $factoryFunction except = {
+    (() vol -> : ArrayList'Int64) $factoryFunction else = {
         write(@console, "factoryFunction not defined!\n")
         return main = 0
     }
@@ -49,7 +49,7 @@ main vol => {
     for vec in vecs {
         if frontInd = Index(vec, 0) {
             @acc +item(vec, frontInd)
-        } except {
+        } else {
             write(@console, "Unexpected error - vector was empty!\n")
         }
     }

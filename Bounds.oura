@@ -22,7 +22,7 @@ sum2Items(arr : IntList, ind1 : Count, ind2 : Count) => Int32|OutOfBoundsError{
     
     if Index'arr $ind1, Index'arr $ind2 {
         res = safeItem(arr, ind1) + safeItem(arr, ind2)
-    } except {
+    } else {
         res = OutOfBoundsError
     }
 
