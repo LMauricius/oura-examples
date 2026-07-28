@@ -1,13 +1,13 @@
 ProtoRecord = proto (
-    f(Real, Int) -> : Real
-    g(Real, Count) -> : Real
-    h(Real, Count) -> : Real
+    f : (Real, Int) -> : Real
+    g(Real, Count) => : Real
+    h(Real, Count) => : Real
 )
 
 ImplRecord = ProtoRecord(
     f = (x, y) -> x * y
     g = (x, p) -> {
-        res = mut x
+        res = var x
 
         repeat p - 1 {
             @res *x

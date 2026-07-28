@@ -16,11 +16,11 @@ NO_FACTORY_FUNCTION_DEFINITION : Bool
 factoryFunctionPossibleImpl = ABIMod(
     ExternC
     ($vol deviceRandom) -> ArrayList'Int64 {
-        seed = mut Seed'deviceRandom'Int64
+        seed = var Seed'deviceRandom'Int64
         uniformDist = UniformDistribution(Int64, range(1, 10))
         randSize = random(@seed, uniformDist)
 
-        pVec = mut ArrayList(Int64, [])
+        pVec = var ArrayList(Int64, [])
         for i in range(0, randSize) {
             newNum = random(@seed, uniformDist)
             append(@pVec, newNum)
@@ -45,7 +45,7 @@ main var => {
 
     vecs = ArrayList(ArrayList'Int64, [factoryFunction() for range(0, n)])
 
-    acc = mut 0
+    acc = var 0
     for vec in vecs {
         if frontInd = Index(vec, 0) {
             @acc +item(vec, frontInd)

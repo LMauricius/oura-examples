@@ -1,3 +1,5 @@
+$Listable.Core
+
 /*
   A stack of entries that can be pushed or popped
 **/
@@ -21,7 +23,7 @@ AnyStack = proto Listable & (
     push($var @self, value : Item'self) => : None
     pop($var @self) where self is non'Empty => : Item
 
-    concat($var @self, lists : Listable'Listable'Item) => : self
+    concat($var @self, lists : Listable'Listable'Item) => : None
 )
 
 /*
@@ -36,7 +38,7 @@ SmallStack = proto AnyStack & struct(
     $capacity
     $count
 
-    items($self out stop) => items'data'self
+    items($self on(===)) => items'data'self
 
     item($self, index : Index) => item(data'self, index)
     operator(item=)($var @self, index : Index, value : Item) => {
@@ -99,7 +101,7 @@ SmallStack = proto AnyStack & struct(
       @brief Ensures that the stack has enough memory for the capacity,
       without modifying the items
     **/
-    _ensureCapacity($var self, minCapacity : Unsigned64) => {
+    _ensureCapacity($var @self, minCapacity : Unsigned64) => {
         if capacity'self < minCapacity and minCapacity > SMALL_COUNT'self {
             oldItems = Array'data'self
             capacity'self = minCapacity
