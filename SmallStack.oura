@@ -11,10 +11,10 @@ AnyStack = proto Listable & (
     Empty = self where count'self ?= 0
 
     /**** Getters **************************************************************************/
-    count($self) -> Count64
+    count($self) => : Count64
 
-    item($self, index : Index) -> Item
-    operator item=($var self, index : Index, value : Item) -> None
+    item($self, index : Index) => : Item on self
+    operator(item=)($var self, index : Index, value : Item) => : None
 
     /**** Methods **************************************************************************/
 
@@ -41,7 +41,7 @@ SmallStack = proto AnyStack & struct(
     items($self out stop) => items'data'self
 
     item($self, index : Index) => item(data'self, index)
-    operator item($var self, index : Index) = (value : Item) => {
+    operator(item=)($var self, index : Index, value : Item) => {
         item(data'self, index) = value
     }
 
@@ -90,8 +90,12 @@ SmallStack = proto AnyStack & struct(
     _ItemBytes = GarbageBytes($size'Bytes'Item)
 
     /* @brief A buffer holding `count` items, reserved for `capacity` items **/
-    _PreallocBuffer = proto struct Array(Item, count) &
-        & MinSized(Memory, SMALL_COUNT * size'Bytes'Item)
+    _PreallocBuffer = proto (
+        struct Array(Item, SMALL_COUNT) if self is UsingSmall
+        else Array(Item, count) & GarbageBytes(
+            size = size'Bytes'Item * (capacity-count)
+        )
+    )
 
     /*
       @brief Ensures that the stack has enough memory for the capacity,
