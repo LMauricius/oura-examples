@@ -14,16 +14,14 @@ AnyStack = proto Listable & (
     count($self) => : Count64
 
     item($self, index : Index) => : Item on self
-    operator(item=)($var self, index : Index, value : Item) => : None
+    operator(item=)($var @self, index : Index, value : Item) => : None
 
     /**** Methods **************************************************************************/
 
-    push($var self, value : Item'self) => : None
-    pop($var self, value : Item'self) where self is non'Empty => : Item
+    push($var @self, value : Item'self) => : None
+    pop($var @self) where self is non'Empty => : Item
 
-    pop($var self, value : Item'self) => : Item
-
-    concat($var self, lists : Listable'Listable'Item) => : Listable'Listable'Item
+    concat($var @self, lists : Listable'Listable'Item) => : self
 )
 
 /*
@@ -41,21 +39,21 @@ SmallStack = proto AnyStack & struct(
     items($self out stop) => items'data'self
 
     item($self, index : Index) => item(data'self, index)
-    operator(item=)($var self, index : Index, value : Item) => {
+    operator(item=)($var @self, index : Index, value : Item) => {
         item(data'self, index) = value
     }
 
     /**** Methods **************************************************************************/
 
-    push($var self, value : Item'self) => {
-        ensureCapacity(count'self + 1)
+    push($var @self, value : Item'self) => {
+        ensureCapacity(@self, count'self + 1)
 
         oldItems = Array'data'self
         @count'self + 1 /*/ invalidates data'self
         data'self = PreallocBuffer'concat(oldItems, value)
     }
 
-    pop($var self, value : Item stacsk) => Item{
+    pop($var @self) => Item{
         ret = item(data'self, count'self - 1)
 
         oldItems = Array'items(data'self, range(0, count'self - 1))
@@ -65,7 +63,7 @@ SmallStack = proto AnyStack & struct(
         === ret
     }
 
-    concat($var self, lists : Listable'Listable'Item) => {
+    concat($var @self, lists : Listable'Listable'Item) => {
         newValuesCount = sum[count'list for list in lists]
 
         oldItems = filled'data'self
