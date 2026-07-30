@@ -50,17 +50,17 @@ SmallStack = proto AnyStack & struct(
     push($var @self, value : Item'self) => {
         ensureCapacity(@self, count'self + 1)
 
-        oldItems = Array'data'self
+        oldItems = out data'self
         @count'self + 1 /*/ invalidates data'self
-        data'self = PreallocBuffer'concat(oldItems, value)
+        data'self = PreallocBuffer'concat(out oldItems, [value])
     }
 
     pop($var @self) => Item{
-        ret = item(data'self, count'self - 1)
+        ret = item(data'self, count'self - 1) /*/ copied out before the buffer goes
 
-        oldItems = Array'items(data'self, range(0, count'self - 1))
+        oldItems = Array'items(out data'self, range(0, count'self - 1))
         @count'self -1 /*/ invalidates data'self
-        data'self = PreallocBuffer'oldItems
+        data'self = PreallocBuffer(out oldItems)
 
         === ret
     }
@@ -68,9 +68,9 @@ SmallStack = proto AnyStack & struct(
     concat($var @self, lists : Listable'Listable'Item) => {
         newValuesCount = sum[count'list for list in lists]
 
-        oldItems = filled'data'self
+        oldItems = out data'self
         @count'self + newValuesCount /*/ invalidates data'self
-        data'self = PreallocBuffer'concat(oldItems, concat'lists)
+        data'self = PreallocBuffer'concat(out oldItems, concat'lists)
     }
 
     /**** Internal data *********************************************************************/
@@ -103,9 +103,9 @@ SmallStack = proto AnyStack & struct(
     **/
     _ensureCapacity($var @self, minCapacity : Unsigned64) => {
         if capacity'self < minCapacity and minCapacity > SMALL_COUNT'self {
-            oldItems = Array'data'self
+            oldItems = out data'self
             capacity'self = minCapacity
-            data'self = PreallocBuffer'oldItems
+            data'self = PreallocBuffer(out oldItems)
         }
     }
 )

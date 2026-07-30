@@ -16,6 +16,7 @@ alone, so that a reader can open any `.oura` file here and follow it.
 | `Bounds.oura`     | Dependent refinement traits                           |
 | `RandVec.oura`    | Conditional definitions, narrowing a nullable, `main` |
 | `SmallStack.oura` | Computed memory layout, small-object optimization     |
+| `Ownership.oura`  | Ownership transfer, borrowing, release                |
 
 ## The three sigils
 
@@ -153,15 +154,53 @@ n = Int64'read(@console, Int64) else alt = {
 }
 ```
 
-Because `===` names the return slot, it doubles as a lifetime anchor. `on self` binds a result
-to the lifetime of `self`; `on(===)` binds it to the returned value:
+Because `===` names the return slot, it doubles as a lifetime anchor: `on(===)` refers to the
+returned value, which is what the next section is built on.
+
+## Ownership
+
+Copying is the default. A parameter consumes the value it is given, but what the caller hands
+over is a copy, so the caller's binding survives the call untouched.
+
+`out` marks an expression whose value is destroyed where it is used, handing the storage over
+instead of duplicating it. It is an elision marker rather than a safety mechanism, and it plays
+the same role for destruction that `@` plays for read-modify-write — it appears only at use
+sites, never in a declaration:
 
 ```oura
-item($self, index : Index) => : Item on self
-items($self on(===)) => items'data'self
+b = a                       /*/ a copy — two blocks, so two teardowns
+c = out a                   /*/ a move — `a` is gone, and only one teardown runs
+big = resized(out c, 64)
 ```
 
-`out` is reserved for destructive moves and is not yet used in these examples.
+`on` is the counterpart, and appears only in declarations. It is what lets a value outlive the
+call it was passed to, and it names where the value comes to live:
+
+```oura
+item($self, index : Index) => : Item on self       /*/ result lives in a parameter
+items($self on(===)) => items'data'self            /*/ result lives in the returned value
+resized(block on(===), newCapacity : Count)        /*/ the argument lives in the result
+Surface(width : Count, height : Count, block on pixels(===))   /*/ … in a named slot of it
+```
+
+So a signature says what becomes of each argument, and the call site says which of them it is
+willing to give up. Between them, handing out a raw buffer is checked rather than conventional —
+`SmallStack` marks every point where it does so:
+
+```oura
+oldItems = Array(out data'self)
+@count'self + 1 /*/ invalidates data'self
+data'self = PreallocBuffer'concat(out oldItems, value)
+```
+
+`operator(out)` is teardown, named after the use-site marker in the same way `operator(item=)` is
+named after `item(x) = v`. It runs where a binding dies unmoved, and an `out` use suppresses it:
+
+```oura
+operator(out)($var @self) => {
+    free(out data'self)
+}
+```
 
 ## The two arrows
 
@@ -260,4 +299,6 @@ syntax changing.
 
 ## Open questions
 
-- Ownership: `out` destructive moves unwritten, so how a raw `PreallocBuffer` is safely handed out is still implicit
+- Precedence of `out` beside `'`: the examples write `Array(out data'self)`, leaving `Array'out data'self` unsettled
+- Copying: whether the deep copy of a struct that owns storage is automatic, or a hook such as `operator Block(Block)`
+- Partial moves: `SmallStack.pop` moves a prefix out of the buffer and drops the rest, so one `out` covers two fates
