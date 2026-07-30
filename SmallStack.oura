@@ -16,7 +16,7 @@ AnyStack = proto Listable & (
     count(=self) => : Count64
 
     item(=self, index : Index) => : Item on self
-    operator(item=)(@self, index : Index, value : Item) => : None
+    operator item=(@self, index : Index, value : Item) => : None
 
     /**** Methods **************************************************************************/
 
@@ -41,7 +41,7 @@ SmallStack = proto AnyStack & struct(
     items(=self on(===)) => items'data'self
 
     item(=self, index : Index) => item(data'self, index)
-    operator(item=)(@self, index : Index, value : Item) => {
+    operator item=(@self, index : Index, value : Item) => {
         item(data'self, index) = value
     }
 
@@ -112,16 +112,16 @@ SmallStack = proto AnyStack & struct(
 
 DEFAULT_SMALL_COUNT = Count'16
 
-operator SmallStack(Item : proto Any) => proto SmallStack(Item, DEFAULT_SMALL_COUNT)
+operator new SmallStack(Item : proto Any) => proto SmallStack(Item, DEFAULT_SMALL_COUNT)
 
-SmallStack(Item : proto Any, SMALL_COUNT : Count) => proto SmallStack(
+operator new SmallStack(Item : proto Any, SMALL_COUNT : Count) => proto SmallStack(
     =proto Item
     =SMALL_COUNT
 )
 
-operator SmallStack(list : Listable) => SmallStack(list, DEFAULT_SMALL_COUNT)
+operator new SmallStack(list : Listable) => SmallStack(list, DEFAULT_SMALL_COUNT)
 
-operator SmallStack(list : Listable, SMALL_COUNT : Count) => SmallStack & (
+operator new SmallStack(list : Listable, SMALL_COUNT : Count) => SmallStack & (
     Item = proto Item'list
     =SMALL_COUNT
     count = count'list

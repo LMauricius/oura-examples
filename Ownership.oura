@@ -22,7 +22,7 @@ Block = proto struct(
     /**** Lifetime *************************************************************************/
 
     /* Runs where a binding dies unmoved; an `out` use suppresses it **/
-    operator(out)(@self) => {
+    operator out(@self) => {
         free(out data'self)
     }
 
@@ -31,7 +31,7 @@ Block = proto struct(
     _data : var Buffer'Item
 )
 
-operator Block(Item : proto Any, capacity : Count) => Block & (
+operator new Block(Item : proto Any, capacity : Count) => Block & (
     =proto Item
     =capacity
     data = Buffer(Item, capacity)
@@ -59,7 +59,7 @@ Surface = proto struct(
 )
 
 /* `on pixels(===)` names the slot of the result the storage lands in **/
-operator Surface(width : Count, height : Count, block on pixels(===)) => Surface & (
+operator new Surface(width : Count, height : Count, block on pixels(===)) => Surface & (
     =width
     =height
     pixels = block
@@ -79,5 +79,5 @@ scene() => {
     surface = Surface(8, 8, out big)
     /*/ the storage big named is pixels'surface now
 
-    /*/ b and surface die here, unmoved, so operator(out) runs on each
+    /*/ b and surface die here, unmoved, so operator out runs on each
 }

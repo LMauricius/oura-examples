@@ -64,7 +64,7 @@ no parentheses, and the value stays in front of the trait that qualifies it — 
 `x : T`.
 
 Conversion is not a language feature here — `Float32` is an ordinary function, and the
-`operator <name>` form gives such functions their proper name.
+`operator new <name>` form gives such functions their proper name.
 
 `=` was chosen over a `use` keyword partly for length, since parameter lists use it constantly,
 but mainly because an import is not a separate feature to learn: it is a definition whose right
@@ -224,11 +224,11 @@ oldItems = Array(out data'self)
 data'self = PreallocBuffer'concat(out oldItems, value)
 ```
 
-`operator(out)` is teardown, named after the use-site marker in the same way `operator(item=)` is
+`operator out` is teardown, named after the use-site marker in the same way `operator item=` is
 named after `item(x) = v`. It runs where a binding dies unmoved, and an `out` use suppresses it:
 
 ```oura
-operator(out)(@self) => {
+operator out(@self) => {
     free(out data'self)
 }
 ```
@@ -268,6 +268,23 @@ writable-binding sense.
 
 A body in braces returns with `===`, and may name its result trait first
 (`pop(@self) => Item{ … }`).
+
+### `operator`
+
+`operator` defines a function reached by syntax rather than by its own name. The name that
+follows is the syntax it answers to:
+
+```oura
+operator out(@self) => { … }                                   /*/ out x
+operator item=(@self, index : Index, value : Item) => : None   /*/ item(x, i) = v
+operator new SmallStack(list : Listable) => …                  /*/ SmallStack'list
+```
+
+`new` is the marker for the one case where the syntax *is* a name — construction and conversion,
+which are the same operation here, since `SmallStack'list` is an ordinary call. Without it the
+constructor would be indistinguishable from an operator named after a form that happens to be a
+bare identifier, and that ambiguity is the only reason the marker exists. Everything else keeps
+its use-site spelling verbatim, so no operator needs quoting.
 
 ## Traits and refinements
 
@@ -330,10 +347,8 @@ syntax changing.
 
 ## Open questions
 
-- `as` before a brace: `if =vec as Vector3 & non'ZERO3 {` has to be told apart from the
-  result-trait form `=> Item{ … }`, since both put a brace after a trait expression
 - `as` operand order: the value is on the left here, but a catch-style binding would want the
   trait there instead (`else Exception as e`)
 - Precedence of `out` beside `'`: the examples write `Array(out data'self)`, leaving `Array'out data'self` unsettled
-- Copying: whether the deep copy of a struct that owns storage is automatic, or a hook such as `operator Block(Block)`
+- Copying: whether the deep copy of a struct that owns storage is automatic, or a hook such as `operator new Block(Block)`
 - Partial moves: `SmallStack.pop` moves a prefix out of the buffer and drops the rest, so one `out` covers two fates
