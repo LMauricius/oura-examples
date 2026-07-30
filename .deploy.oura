@@ -1,8 +1,8 @@
-$.os
-$.sys
-$.argparse
-$.time
-$.config
+=.os
+=.sys
+=.argparse
+=.time
+=.config
 
 ---Add root directory to path
 root_dir = os'path'abspath(os'path'join(

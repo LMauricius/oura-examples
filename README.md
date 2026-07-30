@@ -18,41 +18,57 @@ alone, so that a reader can open any `.oura` file here and follow it.
 | `SmallStack.oura` | Computed memory layout, small-object optimization     |
 | `Ownership.oura`  | Ownership transfer, borrowing, release                |
 
-## The three sigils
+## Imports, calls and modules
 
-These carry most of the syntax, and each one follows a single rule.
+These three carry most of the syntax, and each one follows a single rule.
 
-### `$` imports
+### `=` imports
 
-`$e` binds `head<e> = ref e`. The name comes from the head of the expression, and the binding
+`=e` binds `head<e> = ref e`. The name comes from the head of the expression, and the binding
 is by reference. That one rule covers every use:
 
 ```oura
-$Dict.Std                  /*/ module:      import Dict from Std
-$count                     /*/ field:       count = count
-count($self)               /*/ parameter:   self, imported into scope
-$var console.IO.Std        /*/ with a modifier
-GarbageBytes($size'Bytes'Item)   /*/ named argument: size = ref size'Bytes'Item
-Count & ($arr) where this < len'arr   /*/ capture, inside a refinement
+=Dict.Std                  /*/ module:      import Dict from Std
+=count                     /*/ field:       count = count
+count(=self)               /*/ parameter:   self, imported into scope
+=var console.IO.Std        /*/ with a modifier
+GarbageBytes(=size'Bytes'Item)   /*/ named argument: size = ref size'Bytes'Item
+Count & (=arr) where this < len'arr   /*/ capture, inside a refinement
 ```
 
-An optional expression on the left is applied to the value as it is imported. Import then
-becomes a checked narrowing, and failure flows to `else`:
+Nothing new is being introduced here: `=count` is the ordinary binding `count = count` with the
+redundant half elided, which is why the same operator turns up wherever a name is bound. A named
+argument is written `size = size'Bytes'Item` in full and `=size'Bytes'Item` when the two halves
+agree, and a condition that tries a binding — `if frontInd = Index(vec, 0)` in `RandVec.oura` —
+is the same construct with the name still spelled out.
+
+An optional expression may be applied to the value as it is imported, written after `as`. Import
+then becomes a checked narrowing, and failure flows to `else`:
 
 ```oura
-Float32 $(x, y, z) else {
+=(x, y, z) as Float32 else {
     === DeserializationError
 }
 
-if (Vector3 & non'ZERO3) $vec {
+if =vec as Vector3 & non'ZERO3 {
     === normalized'vec
 }
+
+if =ind1 as Index'arr, =ind2 as Index'arr {
+    …
+}
 ```
+
+Because `as` is a keyword rather than a sigil, the trait on its right composes with `&` and needs
+no parentheses, and the value stays in front of the trait that qualifies it — the same order as
+`x : T`.
 
 Conversion is not a language feature here — `Float32` is an ordinary function, and the
 `operator <name>` form gives such functions their proper name.
 
-`$` was chosen over a `use` keyword purely for length, since parameter lists use it constantly.
+`=` was chosen over a `use` keyword partly for length, since parameter lists use it constantly,
+but mainly because an import is not a separate feature to learn: it is a definition whose right
+side repeats its left.
 
 ### `'` separates a call from its argument
 
@@ -105,7 +121,7 @@ is needed for the read-only case, whereas here read-only is the default.
 The two split at the limit of inference. Where a `var` write becomes observable follows from the
 kind of binding it is: a field is visible to whoever holds the struct, a `var` parameter is
 rebound at the call site. `vol` is the part that cannot be derived, which is why it is the only
-other keyword. On a function, `var` marks outbound effects (`main var => …`) while a `$vol`
+other keyword. On a function, `var` marks outbound effects (`main var => …`) while a `=vol`
 parameter declares an inbound one, giving effect declaration in both directions.
 
 `@` marks a read-modify-write, both on assignment and at a call site:
@@ -117,8 +133,10 @@ hurt(@target, strength'attacker)
 ```
 
 A plain `=` overwrites and needs no `@`; `data'self = PreallocBuffer'oldItems` is not a
-compound assignment. A parameter that will be mutated is declared `$var @self`, so the marker
-appears on both sides of the call and can be checked rather than merely conventional.
+compound assignment. A parameter that will be mutated is declared `@self`, with no `=` and no
+`var`: `@` already carries both, since a read-modify-write parameter must be bound by name and
+must be writable. So the marker appears on both sides of the call and can be checked rather than
+merely conventional.
 
 There are no callee-side references. A mutating call passes values in and returns them out, and
 the call site rebinds them — `Player.oura` spells the desugaring out in full:
@@ -139,18 +157,31 @@ only genuinely new values — which is why every mutator below declares `: None`
 
 ```mermaid
 flowchart LR
-    A["push($var @self, value)"] -->|"implicit"| B["mutated self, rebound at call site"]
+    A["push(@self, value)"] -->|"implicit"| B["mutated self, rebound at call site"]
     A -->|"declared : None"| C["nothing"]
-    D["pop($var @self)"] -->|"implicit"| E["mutated self, rebound at call site"]
+    D["pop(@self)"] -->|"implicit"| E["mutated self, rebound at call site"]
     D -->|"declared : Item"| F["=== ret"]
 ```
 
 `===` returns. It can name its frame, which gives a labelled return out of a nested block:
 
 ```oura
-n = Int64'read(@console, Int64) else alt = {
+n = Int64'read(@console, Int64) else = alt = {
     write(@console, "Invalid input; assuming n=0\n")
     alt === 0
+}
+```
+
+`else` comes in two forms, and the `=` is what separates them. `else = v` supplies a fallback
+*value* for the binding that failed; `else { … }` runs a block instead, which has to leave by
+itself. Above, the fallback value is computed by a block, so both appear at once — `= alt = {`
+reads as "fall back to the value of the frame `alt`":
+
+```oura
+n = Int64'read(@console, Int64) else = 0        /*/ fallback value
+=factoryFunction as (vol -> : ArrayList'Int64) else {
+    write(@console, "factoryFunction not defined!\n")
+    main === 0                                  /*/ fallback block, leaves by itself
 }
 ```
 
@@ -177,8 +208,8 @@ big = resized(out c, 64)
 call it was passed to, and it names where the value comes to live:
 
 ```oura
-item($self, index : Index) => : Item on self       /*/ result lives in a parameter
-items($self on(===)) => items'data'self            /*/ result lives in the returned value
+item(=self, index : Index) => : Item on self       /*/ result lives in a parameter
+items(=self on(===)) => items'data'self            /*/ result lives in the returned value
 resized(block on(===), newCapacity : Count)        /*/ the argument lives in the result
 Surface(width : Count, height : Count, block on pixels(===))   /*/ … in a named slot of it
 ```
@@ -197,7 +228,7 @@ data'self = PreallocBuffer'concat(out oldItems, value)
 named after `item(x) = v`. It runs where a binding dies unmoved, and an `out` use suppresses it:
 
 ```oura
-operator(out)($var @self) => {
+operator(out)(@self) => {
     free(out data'self)
 }
 ```
@@ -213,7 +244,7 @@ terseFunc = (a : Real, b : Real) -> a + b  /*/ … this
 
 f : (Real, Int) -> : Real                  /*/ a field holding a lambda
 g(Real, Count) => : Real                   /*/ the same declaration, shortened
-(vol -> : ArrayList'Int64) $factoryFunction    /*/ a function type
+=factoryFunction as (vol -> : ArrayList'Int64)  /*/ a function type
 ```
 
 There are therefore no methods, and no dispatch mechanism separate from ordinary values — a
@@ -228,7 +259,7 @@ there under either spelling:
 main var => { … }             /*/ same thing as …
 main = () var -> { … }        /*/ … this — var qualifies the function, not the binding
 
-pop($var @self) where self is non'Empty => : Item
+pop(@self) where self is non'Empty => : Item
 ```
 
 So that region carries `var` for outbound effects, `where` for constraints and `: T` for the
@@ -236,7 +267,7 @@ return trait, while a `var` inside a type (`_count : var Unsigned64`) is the unr
 writable-binding sense.
 
 A body in braces returns with `===`, and may name its result trait first
-(`pop($var @self) => Item{ … }`).
+(`pop(@self) => Item{ … }`).
 
 ## Traits and refinements
 
@@ -247,7 +278,7 @@ refinement may depend on a value, which is how bounds checking is expressed as a
 Index = Unsigned64 where this < count
 Empty = self where count'self ?= 0
 
-Index(arr : ref IntList) => Count & ($arr) where this < len'arr
+Index(arr : ref IntList) => Count & (=arr) where this < len'arr
 safeItem(arr : IntList, ind : Index'arr) => reservedBuffer(arr, ind)
 ```
 
@@ -299,6 +330,10 @@ syntax changing.
 
 ## Open questions
 
+- `as` before a brace: `if =vec as Vector3 & non'ZERO3 {` has to be told apart from the
+  result-trait form `=> Item{ … }`, since both put a brace after a trait expression
+- `as` operand order: the value is on the left here, but a catch-style binding would want the
+  trait there instead (`else Exception as e`)
 - Precedence of `out` beside `'`: the examples write `Array(out data'self)`, leaving `Array'out data'self` unsettled
 - Copying: whether the deep copy of a struct that owns storage is automatic, or a hook such as `operator Block(Block)`
 - Partial moves: `SmallStack.pop` moves a prefix out of the buffer and drops the rest, so one `out` covers two fates

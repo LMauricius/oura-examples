@@ -1,4 +1,4 @@
-$Dict.Std
+=Dict.Std
 
 WeekNums = Dict(
     String, Int8, [

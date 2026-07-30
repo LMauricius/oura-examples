@@ -1,4 +1,4 @@
-$Listable.Core
+=Listable.Core
 
 /*
   A stack of entries that can be pushed or popped
@@ -13,17 +13,17 @@ AnyStack = proto Listable & (
     Empty = self where count'self ?= 0
 
     /**** Getters **************************************************************************/
-    count($self) => : Count64
+    count(=self) => : Count64
 
-    item($self, index : Index) => : Item on self
-    operator(item=)($var @self, index : Index, value : Item) => : None
+    item(=self, index : Index) => : Item on self
+    operator(item=)(@self, index : Index, value : Item) => : None
 
     /**** Methods **************************************************************************/
 
-    push($var @self, value : Item'self) => : None
-    pop($var @self) where self is non'Empty => : Item
+    push(@self, value : Item'self) => : None
+    pop(@self) where self is non'Empty => : Item
 
-    concat($var @self, lists : Listable'Listable'Item) => : None
+    concat(@self, lists : Listable'Listable'Item) => : None
 )
 
 /*
@@ -35,19 +35,19 @@ SmallStack = proto AnyStack & struct(
 
     /**** Getters **************************************************************************/
 
-    $capacity
-    $count
+    =capacity
+    =count
 
-    items($self on(===)) => items'data'self
+    items(=self on(===)) => items'data'self
 
-    item($self, index : Index) => item(data'self, index)
-    operator(item=)($var @self, index : Index, value : Item) => {
+    item(=self, index : Index) => item(data'self, index)
+    operator(item=)(@self, index : Index, value : Item) => {
         item(data'self, index) = value
     }
 
     /**** Methods **************************************************************************/
 
-    push($var @self, value : Item'self) => {
+    push(@self, value : Item'self) => {
         ensureCapacity(@self, count'self + 1)
 
         oldItems = out data'self
@@ -55,7 +55,7 @@ SmallStack = proto AnyStack & struct(
         data'self = PreallocBuffer'concat(out oldItems, [value])
     }
 
-    pop($var @self) => Item{
+    pop(@self) => Item{
         ret = item(data'self, count'self - 1) /*/ copied out before the buffer goes
 
         oldItems = Array'items(out data'self, range(0, count'self - 1))
@@ -65,7 +65,7 @@ SmallStack = proto AnyStack & struct(
         === ret
     }
 
-    concat($var @self, lists : Listable'Listable'Item) => {
+    concat(@self, lists : Listable'Listable'Item) => {
         newValuesCount = sum[count'list for list in lists]
 
         oldItems = out data'self
@@ -87,7 +87,7 @@ SmallStack = proto AnyStack & struct(
     _UsingSmall = self where capacity <= SMALL_COUNT
 
     /* @brief Bytes for unset values **/
-    _ItemBytes = GarbageBytes($size'Bytes'Item)
+    _ItemBytes = GarbageBytes(=size'Bytes'Item)
 
     /* @brief A buffer holding `count` items, reserved for `capacity` items **/
     _PreallocBuffer = proto (
@@ -101,7 +101,7 @@ SmallStack = proto AnyStack & struct(
       @brief Ensures that the stack has enough memory for the capacity,
       without modifying the items
     **/
-    _ensureCapacity($var @self, minCapacity : Unsigned64) => {
+    _ensureCapacity(@self, minCapacity : Unsigned64) => {
         if capacity'self < minCapacity and minCapacity > SMALL_COUNT'self {
             oldItems = out data'self
             capacity'self = minCapacity
@@ -115,15 +115,15 @@ DEFAULT_SMALL_COUNT = Count'16
 operator SmallStack(Item : proto Any) => proto SmallStack(Item, DEFAULT_SMALL_COUNT)
 
 SmallStack(Item : proto Any, SMALL_COUNT : Count) => proto SmallStack(
-    $proto Item
-    $SMALL_COUNT
+    =proto Item
+    =SMALL_COUNT
 )
 
 operator SmallStack(list : Listable) => SmallStack(list, DEFAULT_SMALL_COUNT)
 
 operator SmallStack(list : Listable, SMALL_COUNT : Count) => SmallStack & (
     Item = proto Item'list
-    $SMALL_COUNT
+    =SMALL_COUNT
     count = count'list
     capacity = count'list
     data = PreallocBuffer'items'list

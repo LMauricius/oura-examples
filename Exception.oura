@@ -1,4 +1,4 @@
-$(ABIMod, CatchStack, CatchLookUp).ABI.Core
+=(ABIMod, CatchStack, CatchLookUp).ABI.Core
 
 Exceptional(E : Any) => proto ABIMod((storage = CatchStack), E)
 
