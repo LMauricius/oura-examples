@@ -38,9 +38,10 @@ SmallStack = proto AnyStack & struct(
     =capacity
     =count
 
-    items(=self on(===)) => items'data'self
+    items(=self) => var ref items'data'self on self
 
-    item(=self, index : Index) => item(data'self, index)
+    item(=self, index : Index) => var ref item(data'self, index) on self
+    
     operator item=(@self, index : Index, value : Item) => {
         item(data'self, index) = value
     }
@@ -55,7 +56,7 @@ SmallStack = proto AnyStack & struct(
         data'self = PreallocBuffer'concat(out oldItems, [value])
     }
 
-    pop(@self) => Item{
+    pop(@self) => Item {
         ret = item(data'self, count'self - 1) /*/ copied out before the buffer goes
 
         oldItems = Array'items(out data'self, range(0, count'self - 1))
@@ -65,7 +66,7 @@ SmallStack = proto AnyStack & struct(
         === ret
     }
 
-    concat(@self, lists : Listable'Listable'Item) => {
+    concat(@self, lists : Listable'Listable'Item) => None {
         newValuesCount = sum[count'list for list in lists]
 
         oldItems = out data'self
