@@ -1,4 +1,4 @@
-=Listable.Core
+$Listable.Core
 
 /*
   A run of `capacity` items in memory, owning the storage it names
@@ -16,8 +16,8 @@ Block = proto struct(
 
     capacity : Unsigned64
 
-    item(=self, index : Index) => item(data'self, index) on self
-    items(=self on(===)) => items'data'self
+    item($self, index : Index) => item(data'self, index) on self
+    items($self on(===)) => items'data'self
 
     /**** Lifetime *************************************************************************/
 
@@ -32,8 +32,8 @@ Block = proto struct(
 )
 
 operator new Block(Item : proto Any, capacity : Count) => Block & (
-    =proto Item
-    =capacity
+    $proto Item
+    $capacity
     data = Buffer(Item, capacity)
 )
 
@@ -52,16 +52,16 @@ resized(block on(===), newCapacity : Count) => Block'Item'block {
   A drawing surface that takes over the storage handed to it
 **/
 Surface = proto struct(
-    =width
-    =height
+    $width
+    $height
 
     _pixels : var Block'Colour
 )
 
 /* `on pixels(===)` names the slot of the result the storage lands in **/
 operator new Surface(width : Count, height : Count, block on pixels(===)) => Surface & (
-    =width
-    =height
+    $width
+    $height
     pixels = block
 )
 
@@ -71,7 +71,7 @@ scene() => {
     b = a                       /*/ a copy — two blocks, so two teardowns
     c = out a                   /*/ a move — `a` is gone, and only one teardown runs
 
-    view = items'c              /*/ borrowed; anchored on c by items(=self on(===))
+    view = items'c              /*/ borrowed; anchored on c by items($self on(===))
 
     big = resized(out c, 64)    /*/ c is gone, and view with it
     /*/ item(view, 0) here is rejected — view was anchored on c

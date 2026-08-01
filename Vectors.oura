@@ -1,6 +1,6 @@
-=.Math.Std
-=exceptional.Exception
-=(TextStream, DeserializationError).IO.Std
+$.Math.Std
+$exceptional.Exception
+$(TextStream, DeserializationError).IO.Std
 
 Vector3 = proto struct(
     x : Float32
@@ -28,13 +28,13 @@ deserializeNormal(@ts : var TextStream) => Vector3|DeserializationError|InvalidV
     y = read(@ts, Float32)
     z = read(@ts, Float32)
 
-    =(x, y, z) as Float32 else {
+    $(x, y, z) as Float32 else {
         === DeserializationError
     }
 
     vec = Vector3(x, y, z)
 
-    if =vec as Vector3 & non'ZERO3 {
+    if $vec as Vector3 & non'ZERO3 {
         === normalized'vec
     } else {
         === InvalidVectorError
