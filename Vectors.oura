@@ -1,6 +1,6 @@
-$.Math.Std
+$ mod Math.Std
 $exceptional.Exception
-$(TextStream, DeserializationError).IO.Std
+$(TextStream, DeserializationError) mod IO.Std
 
 Vector3 = proto struct(
     x : Float32

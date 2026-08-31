@@ -31,7 +31,7 @@ is by reference. That one rule covers every use:
 $Dict.Std                  /*/ module:      import Dict from Std
 $count                     /*/ field:       count = count
 count($self)               /*/ parameter:   self, imported into scope
-$var console.IO.Std        /*/ with a modifier
+$var console mod IO.Std        /*/ with a modifier
 GarbageBytes($size'Bytes'Item)   /*/ named argument: size = ref size'Bytes'Item
 Count & ($arr) where this < len'arr   /*/ capture, inside a refinement
 ```
@@ -100,7 +100,7 @@ Note the direction: you write the goal first and the path to it afterwards. This
 ### `.` qualifies a module, and nothing else
 
 `.Math` on its own is a module reference. Chaining walks outward to the parent, in the manner of
-a domain name, so a fully qualified module may read `.Submodule.Module.Author.org`. `.` is
+a domain name, so a fully qualified module may read ` mod Submodule.Module.Author.org`. `.` is
 unrelated to `'` despite both reading rightward.
 
 ## Mutation
