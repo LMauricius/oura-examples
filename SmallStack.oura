@@ -63,7 +63,7 @@ SmallStack = proto AnyStack & struct(
         @count'self -1 /*/ invalidates data'self
         data'self = PreallocBuffer(rel oldItems)
 
-        === ret
+        out ret
     }
 
     concat(@self, lists : Listable'Listable'Item) => None {

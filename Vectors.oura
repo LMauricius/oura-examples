@@ -18,7 +18,7 @@ length(vec : Vector3) => sqrt(mod Math, x'vec^2 + y'vec^2 + z'vec^2)
 
 normalized(vec : Vector3 & non'ZERO3) => Vector3{
     l = length'vec
-    === (x'vec / l, y'vec / l, z'vec / l)
+    out (x'vec / l, y'vec / l, z'vec / l)
 }
 
 InvalidVectorError = exceptional'class
@@ -29,14 +29,14 @@ deserializeNormal(@ts : var TextStream) => Result'Vector3|DeserializationError|I
     z = read(@ts, Float32)
 
     use (x, y, z) as Float32 else {
-        === DeserializationError
+        out DeserializationError
     }
 
     vec = Vector3(x, y, z)
 
     if use vec as Vector3 & non'ZERO3 {
-        === normalized'vec
+        out normalized'vec
     } else {
-        === InvalidVectorError
+        out InvalidVectorError
     }
 }

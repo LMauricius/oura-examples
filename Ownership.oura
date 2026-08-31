@@ -17,7 +17,7 @@ Block = proto struct(
     capacity : Unsigned64
 
     item(use self, index : Index) => item(data'self, index) from self
-    items(use self from(===)) => items'data'self
+    items(use self from(out)) => items'data'self
 
     /**** Lifetime *************************************************************************/
 
@@ -39,13 +39,13 @@ operator new Block(Item : proto Any, capacity : Count) => Block & (
 
 /*
   @brief A Block of `newCapacity` items holding what `block` held
-  `from(===)` declares that the storage survives the call inside the result,
+  `from(out)` declares that the storage survives the call inside the result,
   so the argument is gone once the call returns
 **/
-resized(block from(===), newCapacity : Count) => Block'Item'block {
+resized(block from(out), newCapacity : Count) => Block'Item'block {
     grown = Block(Item'block, newCapacity)
     items(data'grown, range(0, capacity'block)) = rel items'block
-    === grown
+    out grown
 }
 
 /*
@@ -58,8 +58,8 @@ Surface = proto struct(
     _pixels : var Block'Colour
 )
 
-/* `from pixels(===)` names the slot of the result the storage lands in **/
-operator new Surface(width : Count, height : Count, block from pixels(===)) => Surface & (
+/* `from pixels(out)` names the slot of the result the storage lands in **/
+operator new Surface(width : Count, height : Count, block from pixels(out)) => Surface & (
     use width
     use height
     pixels = block
@@ -71,7 +71,7 @@ scene() => {
     b = a                       /*/ a copy — two blocks, so two teardowns
     c = rel a                   /*/ a move — `a` is gone, and only one teardown runs
 
-    view = items'c              /*/ borrowed; anchored from c by items(use self from(===))
+    view = items'c              /*/ borrowed; anchored from c by items(use self from(out))
 
     big = resized(rel c, 64)    /*/ c is gone, and view with it
     /*/ item(view, 0) here is rejected — view was anchored from c

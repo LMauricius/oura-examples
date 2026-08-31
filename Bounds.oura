@@ -26,5 +26,5 @@ sum2Items(arr : IntList, ind1 : Count, ind2 : Count) => Int32|OutOfBoundsError {
         res = OutOfBoundsError
     }
 
-    === res
+    out res
 }

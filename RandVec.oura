@@ -26,7 +26,7 @@ factoryFunctionPossibleImpl = ABIMod(
             append(@pVec, newNum)
         }
 
-        === pVec
+        out pVec
     }
 )
 
@@ -35,12 +35,12 @@ factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINIT
 main var ex => {
     n = Int64'read(@console, Int64) else alt = {
         write(@console, "Invalid input; assuming n=0\n")
-        alt === 0
+        alt out 0
     }
     
     use factoryFunction as (ex -> : ArrayList'Int64) else {
         write(@console, "factoryFunction not defined!\n")
-        main === 0
+        main out 0
     }
 
     vecs = (ArrayList'ArrayList'Int64)[factoryFunction() for range(0, n)]
@@ -54,5 +54,5 @@ main var ex => {
         }
     }
 
-    main === acc
+    main out acc
 }

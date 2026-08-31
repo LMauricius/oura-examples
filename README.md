@@ -53,11 +53,11 @@ then becomes a checked narrowing, and failure flows to `else`:
 
 ```oura
 use (x, y, z) as Float32 else {
-    === DeserializationError
+    out DeserializationError
 }
 
 if use vec as Vector3 & non'ZERO3 {
-    === normalized'vec
+    out normalized'vec
 }
 
 if use ind1 as Index'arr, use ind2 as Index'arr {
@@ -216,32 +216,32 @@ flowchart LR
     A["push(@self, value)"] -->|"implicit"| B["mutated self, rebound at call site"]
     A -->|"declared : None"| C["nothing"]
     D["pop(@self)"] -->|"implicit"| E["mutated self, rebound at call site"]
-    D -->|"declared : Item"| F["=== ret"]
+    D -->|"declared : Item"| F["out ret"]
 ```
 
-`===` returns. It can name its frame, which gives a labelled return out of a nested block:
+`out` returns. It can name its frame, which gives a labelled return out of a nested block:
 
 ```oura
 n = Int64'read(@console, Int64) else alt = {
     write(@console, "Invalid input; assuming n=0\n")
-    alt === 0
+    alt out 0
 }
 ```
 
 `else` comes in two forms, and the `=` is what separates them. `else = v` supplies a fallback
 *value* for the binding that failed; `else { … }` runs a block instead, which has to leave by
-itself. A block may name its frame first (`else alt = { … }`), and then `alt === v` leaves it with
+itself. A block may name its frame first (`else alt = { … }`), and then `alt out v` leaves it with
 a value, which covers the case above: a fallback value that has to be computed.
 
 ```oura
 n = Int64'read(@console, Int64) else = 0        /*/ fallback value
 use factoryFunction as (ex -> : ArrayList'Int64) else {
     write(@console, "factoryFunction not defined!\n")
-    main === 0                                  /*/ fallback block, leaves by itself
+    main out 0                                  /*/ fallback block, leaves by itself
 }
 ```
 
-Because `===` names the return slot, it doubles as a lifetime anchor: `from(===)` refers to the
+Because `out` names the return slot, it doubles as a lifetime anchor: `from(out)` refers to the
 returned value, which is what the next section is built from.
 
 ## Ownership
@@ -265,9 +265,9 @@ call it was passed to, and it names where the value comes to live:
 
 ```oura
 item(use self, index : Index) => : Item from self       /*/ result lives in a parameter
-items(use self from(===)) => items'data'self            /*/ result lives in the returned value
-resized(block from(===), newCapacity : Count)        /*/ the argument lives in the result
-Surface(width : Count, height : Count, block from pixels(===))   /*/ … in a named slot of it
+items(use self from(out)) => items'data'self            /*/ result lives in the returned value
+resized(block from(out), newCapacity : Count)        /*/ the argument lives in the result
+Surface(width : Count, height : Count, block from pixels(out))   /*/ … in a named slot of it
 ```
 
 So a signature says what becomes of each argument, and the call site says which of them it is
@@ -322,7 +322,7 @@ So that region carries `var` for outbound effects, `ex` for inbound ones, `where
 constraints and `: T` for the return trait, while a `var` inside a type
 (`_count : var Unsigned64`) is the unrelated, writable-binding sense.
 
-A body in braces returns with `===`, and may name its result trait first
+A body in braces returns with `out`, and may name its result trait first
 (`pop(@self) => Item{ … }`).
 
 ### `operator`

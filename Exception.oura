@@ -8,8 +8,8 @@ DivByZero = Exceptional'class
 
 divided(a : ArgTrait, b : ArgTrait, ArgTrait : proto Number) => ArgTrait|DivByZero{
     if b ?= ArgTrait'0 {
-        === DivByZero
+        out DivByZero
     } else {
-        === a / b
+        out a / b
     }
 }
