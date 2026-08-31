@@ -5,17 +5,17 @@ $(
 $ArrayList.Lists.Std
 $(
     Seed
-    expo deviceRandom
+    ex deviceRandom
     random
     UniformDistribution
  ).Random.Std
-$var expo console.IO.Std
+$var ex console.IO.Std
 
 NO_FACTORY_FUNCTION_DEFINITION : Bool
 
 factoryFunctionPossibleImpl = ABIMod(
     ExternC
-    ($expo deviceRandom) -> ArrayList'Int64 {
+    ($ex deviceRandom) -> ArrayList'Int64 {
         seed = var Seed'deviceRandom'Int64
         uniformDist = UniformDistribution(Int64, range(1, 10))
         randSize = random(@seed, uniformDist)
@@ -32,13 +32,13 @@ factoryFunctionPossibleImpl = ABIMod(
 
 factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else None
 
-main var expo => {
-    n = Int64'read(@console, Int64) else = alt = {
+main var ex => {
+    n = Int64'read(@console, Int64) else alt = {
         write(@console, "Invalid input; assuming n=0\n")
         alt === 0
     }
     
-    $factoryFunction as (expo -> : ArrayList'Int64) else {
+    $factoryFunction as (ex -> : ArrayList'Int64) else {
         write(@console, "factoryFunction not defined!\n")
         main === 0
     }

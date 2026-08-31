@@ -113,43 +113,43 @@ _count : var Unsigned64
 hurt(targetPlayer : var Player, amount : Real) => { … }
 ```
 
-`expo` is the separate case: the binding is *exposed*, meaning something the declaration does not
+`ex` is the separate case: the binding is *exposed*, meaning something the declaration does not
 name may write it — a device, the operating system, another agent entirely.
 
 ```oura
-expo deviceRandom
+ex deviceRandom
 ```
 
 The two are orthogonal, and each carries exactly one fact. `var` says *this* name may write;
-`expo` says *another* one may:
+`ex` says *another* one may:
 
 |           | no other writer | another writer exists |
 | --------- | --------------- | --------------------- |
-| read-only | *(default)*     | `expo`                |
-| writable  | `var`           | `var expo`            |
+| read-only | *(default)*     | `ex`                  |
+| writable  | `var`           | `var ex`              |
 
-A hardware random source is `expo` and not `var` — it changes under you, but you cannot write it.
-A control register a device also drives is `var expo`. Since an exposed value may change between
+A hardware random source is `ex` and not `var` — it changes under you, but you cannot write it.
+A control register a device also drives is `var ex`. Since an exposed value may change between
 one access and the next, it cannot be cached across them; that follows from the exposure rather
 than being a second thing to declare.
 
 Two neighbouring ideas this is not. It is not C's `volatile`, which describes what the compiler
 must do — reload, and keep accesses in order — rather than who else can write, and which offers
 nothing against a concurrent writer. And it is not Python's `global`, which names a *scope*: a
-global is still written only by code that can be seen. `expo` names an agent that cannot.
+global is still written only by code that can be seen. `ex` names an agent that cannot.
 
-### `expo to`
+### `ex to`
 
-Left bare, `expo` names no writer and so admits any. The writers may instead be listed, narrowing
+Left bare, `ex` names no writer and so admits any. The writers may instead be listed, narrowing
 the claim to exactly them:
 
 ```oura
-_health : var Real expo to hurt
+_health : var Real ex to hurt
 ```
 
 Both fields and functions may be listed. Naming a function says that function may write the
 binding; naming a field says that field holds a reference to it which the ownership rules do not
-track. Privacy therefore stops being binary — `_` closes a member and `expo to` reopens it to a
+track. Privacy therefore stops being binary — `_` closes a member and `ex to` reopens it to a
 named set. The compiler checks the list rather than trusting it, though the rules governing it
 are not settled yet.
 
@@ -157,17 +157,17 @@ are not settled yet.
 
 The two keywords split at the limit of inference. Where a `var` write becomes observable follows
 from the kind of binding it is: a field is visible to whoever holds the struct, a `var` parameter
-is rebound at the call site. `expo` is the part that cannot be derived, which is why it is the
-only other keyword. On a function, `var` marks outbound effects and `expo` inbound ones:
+is rebound at the call site. `ex` is the part that cannot be derived, which is why it is the
+only other keyword. On a function, `var` marks outbound effects and `ex` inbound ones:
 
 ```oura
-main var expo => { … }
+main var ex => { … }
 ```
 
-`main` is `expo` because its result is shaped by forces its signature does not name: the OS, the
+`main` is `ex` because its result is shaped by forces its signature does not name: the OS, the
 environment, whatever the process is handed. The meaning is the one above, applied to the
 returned value, and it is what permits the body to reach bindings it never captured and to call
-exposed functions at all. A `$expo` parameter declares the inbound effect for a single argument
+exposed functions at all. A `$ex` parameter declares the inbound effect for a single argument
 instead of for the whole function.
 
 `@` marks a read-modify-write, both on assignment and at a call site:
@@ -225,7 +225,7 @@ reads as "fall back to the value of the frame `alt`":
 
 ```oura
 n = Int64'read(@console, Int64) else = 0        /*/ fallback value
-$factoryFunction as (expo -> : ArrayList'Int64) else {
+$factoryFunction as (ex -> : ArrayList'Int64) else {
     write(@console, "factoryFunction not defined!\n")
     main === 0                                  /*/ fallback block, leaves by itself
 }
@@ -290,7 +290,7 @@ terseFunc = (a : Real, b : Real) -> a + b  /*/ … this
 
 f : (Real, Int) -> : Real                  /*/ a field holding a lambda
 g(Real, Count) => : Real                   /*/ the same declaration, shortened
-$factoryFunction as (expo -> : ArrayList'Int64)  /*/ a function type
+$factoryFunction as (ex -> : ArrayList'Int64)  /*/ a function type
 ```
 
 There are therefore no methods, and no dispatch mechanism separate from ordinary values — a
@@ -302,13 +302,13 @@ Everything between the parameter list and the arrow qualifies the function itsel
 there under either spelling:
 
 ```oura
-main var expo => { … }        /*/ same thing as …
-main = () var expo -> { … }   /*/ … this — var qualifies the function, not the binding
+main var ex => { … }        /*/ same thing as …
+main = () var ex -> { … }   /*/ … this — var qualifies the function, not the binding
 
 pop(@self) where self is non'Empty => : Item
 ```
 
-So that region carries `var` for outbound effects, `expo` for inbound ones, `where` for
+So that region carries `var` for outbound effects, `ex` for inbound ones, `where` for
 constraints and `: T` for the return trait, while a `var` inside a type
 (`_count : var Unsigned64`) is the unrelated, writable-binding sense.
 
@@ -398,4 +398,4 @@ syntax changing.
 - Precedence of `out` beside `'`: the examples write `Array(out data'self)`, leaving `Array'out data'self` unsettled
 - Copying: whether the deep copy of a struct that owns storage is automatic, or a hook such as `operator new Block(Block)`
 - Partial moves: `SmallStack.pop` moves a prefix out of the buffer and drops the rest, so one `out` covers two fates
-- `expo to` checking rules: what a listed writer is permitted to do, and how a listed field's untracked reference is verified
+- `ex to` checking rules: what a listed writer is permitted to do, and how a listed field's untracked reference is verified
