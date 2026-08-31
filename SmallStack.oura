@@ -1,4 +1,4 @@
-$Listable.Core
+use Listable mod Core
 
 /*
   A stack of entries that can be pushed or popped
@@ -13,9 +13,9 @@ AnyStack = proto Listable & (
     Empty = self where count'self ?= 0
 
     /**** Getters **************************************************************************/
-    count($self) => : Count64
+    count(use self) => : Count64
 
-    item($self, index : Index) => : Item on self
+    item(use self, index : Index) => : Item on self
     operator item=(@self, index : Index, value : Item) => : None
 
     /**** Methods **************************************************************************/
@@ -35,12 +35,12 @@ SmallStack = proto AnyStack & struct(
 
     /**** Getters **************************************************************************/
 
-    $capacity
-    $count
+    use capacity
+    use count
 
-    items($self) => var ref items'data'self on self
+    items(use self) => var ref items'data'self on self
 
-    item($self, index : Index) => var ref item(data'self, index) on self
+    item(use self, index : Index) => var ref item(data'self, index) on self
     
     operator item=(@self, index : Index, value : Item) => {
         item(data'self, index) = value
@@ -88,7 +88,7 @@ SmallStack = proto AnyStack & struct(
     _UsingSmall = self where capacity <= SMALL_COUNT
 
     /* @brief Bytes for unset values **/
-    _ItemBytes = GarbageBytes($size'Bytes'Item)
+    _ItemBytes = GarbageBytes(use size'Bytes'Item)
 
     /* @brief A buffer holding `count` items, reserved for `capacity` items **/
     _PreallocBuffer = proto (
@@ -116,15 +116,15 @@ DEFAULT_SMALL_COUNT = Count'16
 operator new SmallStack(Item : proto Any) => proto SmallStack(Item, DEFAULT_SMALL_COUNT)
 
 operator new SmallStack(Item : proto Any, SMALL_COUNT : Count) => proto SmallStack(
-    $proto Item
-    $SMALL_COUNT
+    use proto Item
+    use SMALL_COUNT
 )
 
 operator new SmallStack(list : Listable) => SmallStack(list, DEFAULT_SMALL_COUNT)
 
 operator new SmallStack(list : Listable, SMALL_COUNT : Count) => SmallStack & (
     Item = proto Item'list
-    $SMALL_COUNT
+    use SMALL_COUNT
     count = count'list
     capacity = count'list
     data = PreallocBuffer'items'list

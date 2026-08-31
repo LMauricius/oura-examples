@@ -22,28 +22,28 @@ alone, so that a reader can open any `.oura` file here and follow it.
 
 These three carry most of the syntax, and each one follows a single rule.
 
-### `$` imports
+### `use ` imports
 
-`$e` binds `head<e> = ref e`. The name comes from the head of the expression, and the binding
+`use e` binds `head<e> = ref e`. The name comes from the head of the expression, and the binding
 is by reference. That one rule covers every use:
 
 ```oura
-$Dict.Std                  /*/ module:      import Dict from Std
-$count                     /*/ field:       count = count
-count($self)               /*/ parameter:   self, imported into scope
-$var console mod IO.Std        /*/ with a modifier
-GarbageBytes($size'Bytes'Item)   /*/ named argument: size = ref size'Bytes'Item
-Count & ($arr) where this < len'arr   /*/ capture, inside a refinement
+use Dict.Std                  /*/ module:      import Dict from Std
+use count                     /*/ field:       count = count
+count(use self)               /*/ parameter:   self, imported into scope
+use var console mod IO.Std        /*/ with a modifier
+GarbageBytes(use size'Bytes'Item)   /*/ named argument: size = ref size'Bytes'Item
+Count & (use arr) where this < len'arr   /*/ capture, inside a refinement
 ```
 
-`$count` is the binding `count = count` with the redundant half elided, so the full spelling is
+`use count` is the binding `count = count` with the redundant half elided, so the full spelling is
 always available and means the same thing. A named argument is written `size = size'Bytes'Item`
-in full and `$size'Bytes'Item` when the two halves agree, and a condition that tries a binding
+in full and `use size'Bytes'Item` when the two halves agree, and a condition that tries a binding
 under a name of its own — `if frontInd = Index(vec, 0)` in `RandVec.oura` — is the same
 construct spelled out. The sigil marks the elision; it does not perform the binding, which is
 why it is not itself `=`.
 
-In a parameter list it does a second job as well, and there it pairs with `@`: `$self` is
+In a parameter list it does a second job as well, and there it pairs with `@`: `use self` is
 borrowed, `@self` is read-modify-write, and a bare `self` consumes. Those are three parameter
 modes rather than three kinds of assignment, so the marker for the first is a sigil like the
 marker for the second.
@@ -52,15 +52,15 @@ An optional expression may be applied to the value as it is imported, written af
 then becomes a checked narrowing, and failure flows to `else`:
 
 ```oura
-$(x, y, z) as Float32 else {
+use (x, y, z) as Float32 else {
     === DeserializationError
 }
 
-if $vec as Vector3 & non'ZERO3 {
+if use vec as Vector3 & non'ZERO3 {
     === normalized'vec
 }
 
-if $ind1 as Index'arr, $ind2 as Index'arr {
+if use ind1 as Index'arr, use ind2 as Index'arr {
     …
 }
 ```
@@ -72,7 +72,7 @@ no parentheses, and the value stays in front of the trait that qualifies it — 
 Conversion is not a language feature here — `Float32` is an ordinary function, and the
 `operator new <name>` form gives such functions their proper name.
 
-`$` was chosen over a `use` keyword partly for length, since parameter lists use it constantly,
+`use ` was chosen over a `use` keyword partly for length, since parameter lists use it constantly,
 and it carries the meaning it already has in a shell and in a Rust macro pattern: a name standing
 in for the value bound to it elsewhere. That is what an import is here — a definition whose right
 side repeats its left, and so need not be written twice.
@@ -167,7 +167,7 @@ main var ex => { … }
 `main` is `ex` because its result is shaped by forces its signature does not name: the OS, the
 environment, whatever the process is handed. The meaning is the one above, applied to the
 returned value, and it is what permits the body to reach bindings it never captured and to call
-exposed functions at all. A `$ex` parameter declares the inbound effect for a single argument
+exposed functions at all. A `use ex` parameter declares the inbound effect for a single argument
 instead of for the whole function.
 
 `@` marks a read-modify-write, both on assignment and at a call site:
@@ -179,7 +179,7 @@ hurt(@target, strength'attacker)
 ```
 
 A plain `=` overwrites and needs no `@`; `data'self = PreallocBuffer'oldItems` is not a
-compound assignment. A parameter that will be mutated is declared `@self`, with no `$` and no
+compound assignment. A parameter that will be mutated is declared `@self`, with no `use ` and no
 `var`: `@` already carries both, since a read-modify-write parameter must be bound by name and
 must be writable. So the marker appears on both sides of the call and can be checked rather than
 merely conventional.
@@ -225,7 +225,7 @@ reads as "fall back to the value of the frame `alt`":
 
 ```oura
 n = Int64'read(@console, Int64) else = 0        /*/ fallback value
-$factoryFunction as (ex -> : ArrayList'Int64) else {
+use factoryFunction as (ex -> : ArrayList'Int64) else {
     write(@console, "factoryFunction not defined!\n")
     main === 0                                  /*/ fallback block, leaves by itself
 }
@@ -254,8 +254,8 @@ big = resized(out c, 64)
 call it was passed to, and it names where the value comes to live:
 
 ```oura
-item($self, index : Index) => : Item on self       /*/ result lives in a parameter
-items($self on(===)) => items'data'self            /*/ result lives in the returned value
+item(use self, index : Index) => : Item on self       /*/ result lives in a parameter
+items(use self on(===)) => items'data'self            /*/ result lives in the returned value
 resized(block on(===), newCapacity : Count)        /*/ the argument lives in the result
 Surface(width : Count, height : Count, block on pixels(===))   /*/ … in a named slot of it
 ```
@@ -290,7 +290,7 @@ terseFunc = (a : Real, b : Real) -> a + b  /*/ … this
 
 f : (Real, Int) -> : Real                  /*/ a field holding a lambda
 g(Real, Count) => : Real                   /*/ the same declaration, shortened
-$factoryFunction as (ex -> : ArrayList'Int64)  /*/ a function type
+use factoryFunction as (ex -> : ArrayList'Int64)  /*/ a function type
 ```
 
 There are therefore no methods, and no dispatch mechanism separate from ordinary values — a
@@ -341,11 +341,11 @@ refinement may depend on a value, which is how bounds checking is expressed as a
 Index = Unsigned64 where this < count
 Empty = self where count'self ?= 0
 
-Index(arr : ref IntList) => Count & ($arr) where this < len'arr
+Index(arr : ref IntList) => Count & (use arr) where this < len'arr
 safeItem(arr : IntList, ind : Index'arr) => reservedBuffer(arr, ind)
 ```
 
-`?=` compares; `=` binds; `$` binds a name to itself.
+`?=` compares; `=` binds; `use ` binds a name to itself.
 
 A leading `_` marks a member private at its declaration. References to it drop the underscore,
 so `_ensureCapacity` is called as `ensureCapacity` and `_UsingSmall` is used as `UsingSmall`.

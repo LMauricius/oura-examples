@@ -1,4 +1,4 @@
-$Exceptional.Exception
+use Exceptional mod Exception
 
 OutOfBoundsError = Exceptional'class
 
@@ -9,7 +9,7 @@ IntList = proto struct(
 
 len(arr : IntList) => usedLen'arr
 
-Index(arr : ref IntList) => Count & ($arr) where this < len'arr
+Index(arr : ref IntList) => Count & (use arr) where this < len'arr
 
 safeItem(arr : IntList, ind : Index'arr) => reservedBuffer(arr, ind)
 
@@ -17,10 +17,10 @@ safeItem(arr : IntList, ind : Index'arr) => reservedBuffer(arr, ind)
 
 
 
-sum2Items(arr : IntList, ind1 : Count, ind2 : Count) => Int32|OutOfBoundsError{
+sum2Items(arr : IntList, ind1 : Count, ind2 : Count) => Int32|OutOfBoundsError {
     res : Int32|OutOfBoundsError
     
-    if $ind1 as Index'arr, $ind2 as Index'arr {
+    if use ind1 as Index'arr, use ind2 as Index'arr {
         res = safeItem(arr, ind1) + safeItem(arr, ind2)
     } else {
         res = OutOfBoundsError

@@ -1,21 +1,21 @@
-$(
+use (
     ABISpec
     ExternC
 ) mod ABI.Core
-$ArrayList mod Lists.Std
-$(
+use ArrayList mod Lists.Std
+use (
     Seed
     ex deviceRandom
     random
     UniformDistribution
  ) mod Random.Std
-$var ex console mod IO.Std
+use var ex console mod IO.Std
 
 NO_FACTORY_FUNCTION_DEFINITION : Bool
 
 factoryFunctionPossibleImpl = ABIMod(
     ExternC
-    ($ex deviceRandom) -> ArrayList'Int64 {
+    (use ex deviceRandom) -> ArrayList'Int64 {
         seed = var Seed'deviceRandom'Int64
         uniformDist = UniformDistribution(Int64, range(1, 10))
         randSize = random(@seed, uniformDist)
@@ -38,7 +38,7 @@ main var ex => {
         alt === 0
     }
     
-    $factoryFunction as (ex -> : ArrayList'Int64) else {
+    use factoryFunction as (ex -> : ArrayList'Int64) else {
         write(@console, "factoryFunction not defined!\n")
         main === 0
     }
