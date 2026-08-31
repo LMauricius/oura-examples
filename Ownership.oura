@@ -16,8 +16,8 @@ Block = proto struct(
 
     capacity : Unsigned64
 
-    item(use self, index : Index) => item(data'self, index) on self
-    items(use self on(===)) => items'data'self
+    item(use self, index : Index) => item(data'self, index) from self
+    items(use self from(===)) => items'data'self
 
     /**** Lifetime *************************************************************************/
 
@@ -39,10 +39,10 @@ operator new Block(Item : proto Any, capacity : Count) => Block & (
 
 /*
   @brief A Block of `newCapacity` items holding what `block` held
-  `on(===)` declares that the storage survives the call inside the result,
+  `from(===)` declares that the storage survives the call inside the result,
   so the argument is gone once the call returns
 **/
-resized(block on(===), newCapacity : Count) => Block'Item'block {
+resized(block from(===), newCapacity : Count) => Block'Item'block {
     grown = Block(Item'block, newCapacity)
     items(data'grown, range(0, capacity'block)) = out items'block
     === grown
@@ -58,8 +58,8 @@ Surface = proto struct(
     _pixels : var Block'Colour
 )
 
-/* `on pixels(===)` names the slot of the result the storage lands in **/
-operator new Surface(width : Count, height : Count, block on pixels(===)) => Surface & (
+/* `from pixels(===)` names the slot of the result the storage lands in **/
+operator new Surface(width : Count, height : Count, block from pixels(===)) => Surface & (
     use width
     use height
     pixels = block
@@ -71,13 +71,13 @@ scene() => {
     b = a                       /*/ a copy — two blocks, so two teardowns
     c = out a                   /*/ a move — `a` is gone, and only one teardown runs
 
-    view = items'c              /*/ borrowed; anchored on c by items(use self on(===))
+    view = items'c              /*/ borrowed; anchored from c by items(use self from(===))
 
     big = resized(out c, 64)    /*/ c is gone, and view with it
-    /*/ item(view, 0) here is rejected — view was anchored on c
+    /*/ item(view, 0) here is rejected — view was anchored from c
 
     surface = Surface(8, 8, out big)
     /*/ the storage big named is pixels'surface now
 
-    /*/ b and surface die here, unmoved, so operator out runs on each
+    /*/ b and surface die here, unmoved, so operator out runs from each
 }

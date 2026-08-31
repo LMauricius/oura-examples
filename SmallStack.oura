@@ -15,7 +15,7 @@ AnyStack = proto Listable & (
     /**** Getters **************************************************************************/
     count(use self) => : Count64
 
-    item(use self, index : Index) => : Item on self
+    item(use self, index : Index) => : Item from self
     operator item=(@self, index : Index, value : Item) => : None
 
     /**** Methods **************************************************************************/
@@ -38,9 +38,9 @@ SmallStack = proto AnyStack & struct(
     use capacity
     use count
 
-    items(use self) => var ref items'data'self on self
+    items(use self) => var ref items'data'self from self
 
-    item(use self, index : Index) => var ref item(data'self, index) on self
+    item(use self, index : Index) => var ref item(data'self, index) from self
     
     operator item=(@self, index : Index, value : Item) => {
         item(data'self, index) = value

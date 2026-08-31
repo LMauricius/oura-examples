@@ -65,7 +65,7 @@ if use ind1 as Index'arr, use ind2 as Index'arr {
 }
 ```
 
-Because `as` is a keyword rather than a sigil, the trait on its right composes with `&` and needs
+Because `as` is a keyword rather than a sigil, the trait from its right composes with `&` and needs
 no parentheses, and the value stays in front of the trait that qualifies it — the same order as
 `x : T`.
 
@@ -180,7 +180,7 @@ returned value, and it is what permits the body to reach bindings it never captu
 exposed functions at all. A `use ex` parameter declares the inbound effect for a single argument
 instead of for the whole function.
 
-`@` marks a read-modify-write, both on assignment and at a call site:
+`@` marks a read-modify-write, both from assignment and at a call site:
 
 ```oura
 @health'targetPlayer - amount   /*/ health'targetPlayer = health'targetPlayer - amount
@@ -191,7 +191,7 @@ hurt(@target, strength'attacker)
 A plain `=` overwrites and needs no `@`; `data'self = PreallocBuffer'oldItems` is not a
 compound assignment. A parameter that will be mutated is declared `@self`, with no `use` and no
 `var`: `@` already carries both, since a read-modify-write parameter must be bound by name and
-must be writable. So the marker appears on both sides of the call and can be checked rather than
+must be writable. So the marker appears from both sides of the call and can be checked rather than
 merely conventional.
 
 There are no callee-side references. A mutating call passes values in and returns them out, and
@@ -241,8 +241,8 @@ use factoryFunction as (ex -> : ArrayList'Int64) else {
 }
 ```
 
-Because `===` names the return slot, it doubles as a lifetime anchor: `on(===)` refers to the
-returned value, which is what the next section is built on.
+Because `===` names the return slot, it doubles as a lifetime anchor: `from(===)` refers to the
+returned value, which is what the next section is built from.
 
 ## Ownership
 
@@ -260,14 +260,14 @@ c = out a                   /*/ a move — `a` is gone, and only one teardown ru
 big = resized(out c, 64)
 ```
 
-`on` is the counterpart, and appears only in declarations. It is what lets a value outlive the
+`from` is the counterpart, and appears only in declarations. It is what lets a value outlive the
 call it was passed to, and it names where the value comes to live:
 
 ```oura
-item(use self, index : Index) => : Item on self       /*/ result lives in a parameter
-items(use self on(===)) => items'data'self            /*/ result lives in the returned value
-resized(block on(===), newCapacity : Count)        /*/ the argument lives in the result
-Surface(width : Count, height : Count, block on pixels(===))   /*/ … in a named slot of it
+item(use self, index : Index) => : Item from self       /*/ result lives in a parameter
+items(use self from(===)) => items'data'self            /*/ result lives in the returned value
+resized(block from(===), newCapacity : Count)        /*/ the argument lives in the result
+Surface(width : Count, height : Count, block from pixels(===))   /*/ … in a named slot of it
 ```
 
 So a signature says what becomes of each argument, and the call site says which of them it is
@@ -305,7 +305,7 @@ use factoryFunction as (ex -> : ArrayList'Int64)  /*/ a function type
 
 There are therefore no methods, and no dispatch mechanism separate from ordinary values — a
 function is a field like any other. `ImplRecord` in `Functions.oura` fills its three slots three
-different ways on purpose: a lambda into a lambda-typed field, a lambda into a slot declared
+different ways from purpose: a lambda into a lambda-typed field, a lambda into a slot declared
 with `=>`, and a named definition.
 
 Everything between the parameter list and the arrow qualifies the function itself, and stays
@@ -345,7 +345,7 @@ its use-site spelling verbatim, so no operator needs quoting.
 ## Traits and refinements
 
 `proto` introduces a prototype and `&` intersects. A trait may be refined with `where`, and the
-refinement may depend on a value, which is how bounds checking is expressed as a type:
+refinement may depend from a value, which is how bounds checking is expressed as a type:
 
 ```oura
 Index = Unsigned64 where this < count
@@ -375,7 +375,7 @@ _PreallocBuffer = proto (
 )
 ```
 
-Since the layout depends on `count` and `capacity`, changing either invalidates the buffer. The
+Since the layout depends from `count` and `capacity`, changing either invalidates the buffer. The
 examples mark those points explicitly:
 
 ```oura
@@ -403,7 +403,7 @@ syntax changing.
 
 ## Open questions
 
-- `as` operand order: the value is on the left here, but a catch-style binding would want the
+- `as` operand order: the value is from the left here, but a catch-style binding would want the
   trait there instead (`else Exception as e`)
 - Precedence of `out` beside `'`: the examples write `Array(out data'self)`, leaving `Array'out data'self` unsettled
 - Copying: whether the deep copy of a struct that owns storage is automatic, or a hook such as `operator new Block(Block)`
