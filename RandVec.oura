@@ -33,7 +33,7 @@ factoryFunctionPossibleImpl = ABIMod(
 factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else None
 
 main var ex => {
-    n = Int64'read(@console, Int64) else alt = {
+    n = result'read(@console, Int64) else alt = {
         write(@console, "Invalid input; assuming n=0\n")
         alt out 0
     }

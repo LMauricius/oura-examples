@@ -14,28 +14,28 @@ ZERO3 = Vector3(
     z = 0.0
 )
 
-length(vec : Vector3) => sqrt(mod Math, x'vec^2 + y'vec^2 + z'vec^2)
+length(vec : Vector3) => sqrt(Math, x'vec^2 + y'vec^2 + z'vec^2)
 
-normalized(vec : Vector3 & non'ZERO3) => Vector3{
+normalized(vec : Vector3 & non'ZERO3) => Vector3 {
     l = length'vec
     out (x'vec / l, y'vec / l, z'vec / l)
 }
 
 InvalidVectorError = exceptional'class
 
-deserializeNormal(@ts : var TextStream) => Result'Vector3|DeserializationError|InvalidVectorError {
+readNormal(@ts : var TextStream) => (result : Vector3) | DeserializationError | InvalidVectorError {
     x = read(@ts, Float32)
     y = read(@ts, Float32)
     z = read(@ts, Float32)
 
-    use (x, y, z) as Float32 else {
+    use (x, y, z) as result else {
         out DeserializationError
     }
 
     vec = Vector3(x, y, z)
 
     if use vec as Vector3 & non'ZERO3 {
-        out normalized'vec
+        out (result = normalized'vec)
     } else {
         out InvalidVectorError
     }

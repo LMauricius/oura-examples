@@ -222,7 +222,7 @@ flowchart LR
 `out` returns. It can name its frame, which gives a labelled return out of a nested block:
 
 ```oura
-n = Int64'read(@console, Int64) else alt = {
+n = result'read(@console, Int64) else alt = {
     write(@console, "Invalid input; assuming n=0\n")
     alt out 0
 }
@@ -234,7 +234,7 @@ itself. A block may name its frame first (`else alt = { … }`), and then `alt o
 a value, which covers the case above: a fallback value that has to be computed.
 
 ```oura
-n = Int64'read(@console, Int64) else = 0        /*/ fallback value
+n = result'read(@console, Int64) else = 0        /*/ fallback value
 use factoryFunction as (ex -> : ArrayList'Int64) else {
     write(@console, "factoryFunction not defined!\n")
     main out 0                                  /*/ fallback block, leaves by itself
