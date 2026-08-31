@@ -30,6 +30,6 @@ action(myPlayer : var Player, otherPlayer : var Player) => {
 
     /*
     LONGER: attack(attacker = @myPlayer, target = @otherPlayer)
-    EXPLICIT: (@myPlayer = attacker, @otherPlayer = target) = attack(attacker = out myPlayer, target = out otherPlayer)
+    EXPLICIT: (@myPlayer = attacker, @otherPlayer = target) = attack(attacker = rel myPlayer, target = rel otherPlayer)
     **/
 }

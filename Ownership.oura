@@ -21,9 +21,9 @@ Block = proto struct(
 
     /**** Lifetime *************************************************************************/
 
-    /* Runs where a binding dies unmoved; an `out` use suppresses it **/
-    operator out(@self) => {
-        free(out data'self)
+    /* Runs where a binding dies unmoved; a `rel` use suppresses it **/
+    operator rel(@self) => {
+        free(rel data'self)
     }
 
     /**** Internal data *********************************************************************/
@@ -44,7 +44,7 @@ operator new Block(Item : proto Any, capacity : Count) => Block & (
 **/
 resized(block from(===), newCapacity : Count) => Block'Item'block {
     grown = Block(Item'block, newCapacity)
-    items(data'grown, range(0, capacity'block)) = out items'block
+    items(data'grown, range(0, capacity'block)) = rel items'block
     === grown
 }
 
@@ -69,15 +69,15 @@ scene() => {
     a = Block(Byte, 16)
 
     b = a                       /*/ a copy — two blocks, so two teardowns
-    c = out a                   /*/ a move — `a` is gone, and only one teardown runs
+    c = rel a                   /*/ a move — `a` is gone, and only one teardown runs
 
     view = items'c              /*/ borrowed; anchored from c by items(use self from(===))
 
-    big = resized(out c, 64)    /*/ c is gone, and view with it
+    big = resized(rel c, 64)    /*/ c is gone, and view with it
     /*/ item(view, 0) here is rejected — view was anchored from c
 
-    surface = Surface(8, 8, out big)
+    surface = Surface(8, 8, rel big)
     /*/ the storage big named is pixels'surface now
 
-    /*/ b and surface die here, unmoved, so operator out runs from each
+    /*/ b and surface die here, unmoved, so operator rel runs from each
 }

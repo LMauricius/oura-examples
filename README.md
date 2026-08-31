@@ -249,15 +249,15 @@ returned value, which is what the next section is built from.
 Copying is the default. A parameter consumes the value it is given, but what the caller hands
 over is a copy, so the caller's binding survives the call untouched.
 
-`out` marks an expression whose value is destroyed where it is used, handing the storage over
+`rel` (release) marks an expression whose value is destroyed where it is used, handing the storage over
 instead of duplicating it. It is an elision marker rather than a safety mechanism, and it plays
 the same role for destruction that `@` plays for read-modify-write — it appears only at use
 sites, never in a declaration:
 
 ```oura
 b = a                       /*/ a copy — two blocks, so two teardowns
-c = out a                   /*/ a move — `a` is gone, and only one teardown runs
-big = resized(out c, 64)
+c = rel a                   /*/ a move — `a` is gone, and only one teardown runs
+big = resized(rel c, 64)
 ```
 
 `from` is the counterpart, and appears only in declarations. It is what lets a value outlive the
@@ -275,17 +275,17 @@ willing to give up. Between them, handing out a raw buffer is checked rather tha
 `SmallStack` marks every point where it does so:
 
 ```oura
-oldItems = Array(out data'self)
+oldItems = rel data'self
 @count'self + 1 /*/ invalidates data'self
-data'self = PreallocBuffer'concat(out oldItems, value)
+data'self = PreallocBuffer'concat(rel oldItems, [value])
 ```
 
-`operator out` is teardown, named after the use-site marker in the same way `operator item=` is
-named after `item(x) = v`. It runs where a binding dies unmoved, and an `out` use suppresses it:
+`operator rel` is teardown, named after the use-site marker in the same way `operator item=` is
+named after `item(x) = v`. It runs where a binding dies unmoved, and a `rel` use suppresses it:
 
 ```oura
-operator out(@self) => {
-    free(out data'self)
+operator rel(@self) => {
+    free(rel data'self)
 }
 ```
 
@@ -331,7 +331,7 @@ A body in braces returns with `===`, and may name its result trait first
 follows is the syntax it answers to:
 
 ```oura
-operator out(@self) => { … }                                   /*/ out x
+operator rel(@self) => { … }                                   /*/ rel x
 operator item=(@self, index : Index, value : Item) => : None   /*/ item(x, i) = v
 operator new SmallStack(list : Listable) => …                  /*/ SmallStack'list
 ```
@@ -405,7 +405,7 @@ syntax changing.
 
 - `as` operand order: the value is from the left here, but a catch-style binding would want the
   trait there instead (`else Exception as e`)
-- Precedence of `out` beside `'`: the examples write `Array(out data'self)`, leaving `Array'out data'self` unsettled
+- Precedence of `rel` beside `'`: the examples write `rel data'self`, leaving `Array'rel data'self` unsettled
 - Copying: whether the deep copy of a struct that owns storage is automatic, or a hook such as `operator new Block(Block)`
-- Partial moves: `SmallStack.pop` moves a prefix out of the buffer and drops the rest, so one `out` covers two fates
+- Partial moves: `SmallStack.pop` moves a prefix out of the buffer and drops the rest, so one `rel` covers two fates
 - `ex to` checking rules: what a listed writer is permitted to do, and how a listed field's untracked reference is verified
