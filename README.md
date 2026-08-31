@@ -22,13 +22,13 @@ alone, so that a reader can open any `.oura` file here and follow it.
 
 These three carry most of the syntax, and each one follows a single rule.
 
-### `use ` imports
+### `use` imports
 
 `use e` binds `head<e> = ref e`. The name comes from the head of the expression, and the binding
 is by reference. That one rule covers every use:
 
 ```oura
-use Dict.Std                  /*/ module:      import Dict from Std
+use Dict mod Std              /*/ module:      import Dict from Std
 use count                     /*/ field:       count = count
 count(use self)               /*/ parameter:   self, imported into scope
 use var console mod IO.Std        /*/ with a modifier
@@ -40,13 +40,13 @@ Count & (use arr) where this < len'arr   /*/ capture, inside a refinement
 always available and means the same thing. A named argument is written `size = size'Bytes'Item`
 in full and `use size'Bytes'Item` when the two halves agree, and a condition that tries a binding
 under a name of its own — `if frontInd = Index(vec, 0)` in `RandVec.oura` — is the same
-construct spelled out. The sigil marks the elision; it does not perform the binding, which is
-why it is not itself `=`.
+construct spelled out. The keyword marks the elision; it does not perform the binding, which
+is why it is not itself `=`.
 
 In a parameter list it does a second job as well, and there it pairs with `@`: `use self` is
 borrowed, `@self` is read-modify-write, and a bare `self` consumes. Those are three parameter
-modes rather than three kinds of assignment, so the marker for the first is a sigil like the
-marker for the second.
+modes rather than three kinds of assignment, which is why the first is marked at all rather
+than left bare.
 
 An optional expression may be applied to the value as it is imported, written after `as`. Import
 then becomes a checked narrowing, and failure flows to `else`:
@@ -72,10 +72,10 @@ no parentheses, and the value stays in front of the trait that qualifies it — 
 Conversion is not a language feature here — `Float32` is an ordinary function, and the
 `operator new <name>` form gives such functions their proper name.
 
-`use ` was chosen over a `use` keyword partly for length, since parameter lists use it constantly,
-and it carries the meaning it already has in a shell and in a Rust macro pattern: a name standing
-in for the value bound to it elsewhere. That is what an import is here — a definition whose right
-side repeats its left, and so need not be written twice.
+`use` is a word rather than a sigil because it reads the same way at every one of these sites: a
+name standing in for the value bound to it elsewhere. That is what an import is here (a definition
+whose right side repeats its left, and so need not be written twice), and a `use` parameter makes
+the same claim about an argument.
 
 ### `'` separates a call from its argument
 
@@ -97,11 +97,21 @@ language needs no separate syntax for any of them.
 
 Note the direction: you write the goal first and the path to it afterwards. This is deliberate.
 
-### `.` qualifies a module, and nothing else
+### `mod` marks a module
 
-`.Math` on its own is a module reference. Chaining walks outward to the parent, in the manner of
-a domain name, so a fully qualified module may read ` mod Submodule.Module.Author.org`. `.` is
-unrelated to `'` despite both reading rightward.
+`mod` is what tells a module apart from an ordinary name, and `.` chains one outward to its
+parent, in the manner of a domain name, so a fully qualified module reads
+`mod Submodule.Module.Author.org`. `.` qualifies modules and nothing else, and is unrelated to
+`'` despite both reading rightward.
+
+Once marked, a module is a value like any other, so qualifying a call is simply passing one:
+
+```oura
+use Dict mod Std                     /*/ import Dict from Std
+use mod Math.Std                     /*/ import the module itself
+use (TextStream, DeserializationError) mod IO.Std
+sqrt(mod Math, x'vec^2 + y'vec^2)    /*/ the Math sqrt, not whichever is in scope
+```
 
 ## Mutation
 
@@ -179,7 +189,7 @@ hurt(@target, strength'attacker)
 ```
 
 A plain `=` overwrites and needs no `@`; `data'self = PreallocBuffer'oldItems` is not a
-compound assignment. A parameter that will be mutated is declared `@self`, with no `use ` and no
+compound assignment. A parameter that will be mutated is declared `@self`, with no `use` and no
 `var`: `@` already carries both, since a read-modify-write parameter must be bound by name and
 must be writable. So the marker appears on both sides of the call and can be checked rather than
 merely conventional.
@@ -212,7 +222,7 @@ flowchart LR
 `===` returns. It can name its frame, which gives a labelled return out of a nested block:
 
 ```oura
-n = Int64'read(@console, Int64) else = alt = {
+n = Int64'read(@console, Int64) else alt = {
     write(@console, "Invalid input; assuming n=0\n")
     alt === 0
 }
@@ -220,8 +230,8 @@ n = Int64'read(@console, Int64) else = alt = {
 
 `else` comes in two forms, and the `=` is what separates them. `else = v` supplies a fallback
 *value* for the binding that failed; `else { … }` runs a block instead, which has to leave by
-itself. Above, the fallback value is computed by a block, so both appear at once — `= alt = {`
-reads as "fall back to the value of the frame `alt`":
+itself. A block may name its frame first (`else alt = { … }`), and then `alt === v` leaves it with
+a value, which covers the case above: a fallback value that has to be computed.
 
 ```oura
 n = Int64'read(@console, Int64) else = 0        /*/ fallback value
@@ -345,7 +355,7 @@ Index(arr : ref IntList) => Count & (use arr) where this < len'arr
 safeItem(arr : IntList, ind : Index'arr) => reservedBuffer(arr, ind)
 ```
 
-`?=` compares; `=` binds; `use ` binds a name to itself.
+`?=` compares; `=` binds; `use` binds a name to itself.
 
 A leading `_` marks a member private at its declaration. References to it drop the underscore,
 so `_ensureCapacity` is called as `ensureCapacity` and `_UsingSmall` is used as `UsingSmall`.

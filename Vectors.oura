@@ -23,7 +23,7 @@ normalized(vec : Vector3 & non'ZERO3) => Vector3{
 
 InvalidVectorError = exceptional'class
 
-deserializeNormal(@ts : var TextStream) => Vector3|DeserializationError|InvalidVectorError {
+deserializeNormal(@ts : var TextStream) => Result'Vector3|DeserializationError|InvalidVectorError {
     x = read(@ts, Float32)
     y = read(@ts, Float32)
     z = read(@ts, Float32)
