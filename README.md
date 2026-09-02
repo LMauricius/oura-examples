@@ -387,8 +387,8 @@ data'self = PreallocBuffer'concat(oldItems, value)
 but how an error travels is a library choice rather than a language rule:
 
 ```oura
-Exceptional(E : Any) => proto ABIMod((storage = CatchStack), E)
-Unexpected(E : Any)  => proto ABIMod((storage = CatchLookUp), E)
+Exceptional(E : Any) => proto E #CatchStack
+Unexpected(E : Any)  => proto E #CatchLookUp
 ```
 
 Unwinding, a lookup table, or something else can be selected per error type without the source

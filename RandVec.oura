@@ -1,7 +1,4 @@
-use (
-    ABISpec
-    ExternC
-) mod ABI.Core
+use ExternC mod ABI.Core
 use ArrayList mod Lists.Std
 use (
     Seed
@@ -13,22 +10,19 @@ use var ex console mod IO.Std
 
 NO_FACTORY_FUNCTION_DEFINITION : Bool
 
-factoryFunctionPossibleImpl = ABIMod(
-    ExternC
-    (use ex deviceRandom) -> ArrayList'Int64 {
-        seed = var Seed'deviceRandom'Int64
-        uniformDist = UniformDistribution(Int64, range(1, 10))
-        randSize = random(@seed, uniformDist)
+factoryFunctionPossibleImpl(use ex deviceRandom) # ExternC => ArrayList'Int64 {
+    seed = var Seed'deviceRandom'Int64
+    uniformDist = UniformDistribution(Int64, range(1, 10))
+    randSize = random(@seed, uniformDist)
 
-        pVec = var ArrayList(Int64, [])
-        for i in range(0, randSize) {
-            newNum = random(@seed, uniformDist)
-            append(@pVec, newNum)
-        }
-
-        out pVec
+    pVec = var ArrayList(Int64, [])
+    for i in range(0, randSize) {
+        newNum = random(@seed, uniformDist)
+        append(@pVec, newNum)
     }
-)
+
+    out pVec
+}
 
 factoryFunction = factoryFunctionPossibleImpl if not NO_FACTORY_FUNCTION_DEFINITION else None
 
