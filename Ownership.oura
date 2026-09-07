@@ -22,13 +22,13 @@ Block = proto struct(
     /**** Lifetime *************************************************************************/
 
     /* Runs where a binding dies unmoved; a `rel` use suppresses it **/
-    operator rel(@self) => {
+    operator rel(use @self) => {
         free(rel data'self)
     }
 
     /**** Internal data *********************************************************************/
 
-    _data : var Buffer'Item
+    _data : Buffer'Item
 )
 
 operator new Block(Item : proto Any, capacity : Count) => Block & (
@@ -44,7 +44,7 @@ operator new Block(Item : proto Any, capacity : Count) => Block & (
 **/
 resized(block from(out), newCapacity : Count) => Block'Item'block {
     grown = Block(Item'block, newCapacity)
-    items(data'grown, range(0, capacity'block)) = rel items'block
+    items(@data'grown, range(0, capacity'block)) = rel items'block
     out grown
 }
 
@@ -55,7 +55,7 @@ Surface = proto struct(
     use width
     use height
 
-    _pixels : var Block'Colour
+    _pixels : Block'Colour
 )
 
 /* `from pixels(out)` names the slot of the result the storage lands in **/

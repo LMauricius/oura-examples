@@ -3,8 +3,8 @@ use Exceptional mod Exception
 OutOfBoundsError = Exceptional'class
 
 IntList = proto struct(
-    _reservedBuffer : var Buffer'Int32
-    _usedLen : var Count
+    _reservedBuffer : Buffer'Int32
+    _usedLen : Count
 )
 
 len(arr : IntList) => usedLen'arr

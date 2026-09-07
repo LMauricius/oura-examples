@@ -3,7 +3,7 @@ Player = proto struct SceneObject & Animable & (
     strength : Real
 )
 
-hurt(targetPlayer : var Player, amount : Real) => {
+hurt(@targetPlayer : Player, amount : Real) => {
     if amount >= health'targetPlayer {
         @health'targetPlayer = 0
         @lives'targetPlayer - 1
@@ -20,12 +20,12 @@ hurt(targetPlayer : var Player, amount : Real) => {
     }
 }
 
-attack(attacker : var Player, target : var Player) => {
+attack(@attacker : Player, @target : Player) => {
     playAnim(@attacker, "SwordSwing")
     hurt(@target, strength'attacker)
 }
 
-action(myPlayer : var Player, otherPlayer : var Player) => {
+action(@myPlayer : Player, @otherPlayer : Player) => {
     attack(@myPlayer, @otherPlayer)
 
     /*
