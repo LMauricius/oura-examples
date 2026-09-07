@@ -1,4 +1,4 @@
-use Dict'module Std
+use Dict mod Std
 
 WeekNums = Dict(
     String, Int8, [

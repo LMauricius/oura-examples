@@ -1,15 +1,14 @@
-use (ABIMod, CatchStack, CatchLookUp) module ABI'Core
+use (CatchStack, CatchLookUp) mod ABI.Core
 
-Exceptional(E $Any) => proto ABIMod((storage = CatchStack), E)
-
-Unexpected(E $Any) => proto ABIMod((storage = CatchLookUp), E)
+Exceptional(E : Any) => proto E # CatchStack
+Unexpected(E : Any) => proto E # CatchLookUp
 
 DivByZero = Exceptional'class
 
-divided(a $ArgTrait, b $ArgTrait, ArgTrait $proto Number) => ArgTrait|DivByZero{
+divided(a : ArgTrait, b : ArgTrait, ArgTrait : proto Number) => ArgTrait|DivByZero {
     if b ?= ArgTrait'0 {
-        return DivByZero
+        out DivByZero
     } else {
-        return a / b
+        out a / b
     }
 }
