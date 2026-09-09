@@ -16,17 +16,17 @@ _PreallocBuffer = proto Listable & (
         filledItems : Array(Item, count)
         freeItems = GarbageBytes'freeCount
     ) & (
-        with use @self {
+        given use self! {
             append(items : Listable'Item where count'this <= freeCount'self) => {
-                oldItems = rel filledItems
-                @count'self +count'items
-                @filledItems = concat(oldItems, items)
+                oldItems = rel filledItems'self
+                count'self! +count'items
+                filledItems'self! = concat(oldItems, items)
             }
 
             remove(count : Unsigned64 where this <= count'self) => {
-                oldItems = items(rel filledItems, count'self - count)
-                @count'self -count
-                @filledItems = oldItems
+                oldItems = items(rel filledItems'self, count'self - count)
+                count'self! -count
+                filledItems'self! = oldItems
             }
         }
     )
@@ -51,7 +51,7 @@ AnyStack = proto Listable & (
 
     /**** Methods **************************************************************************/
 
-    given use @self {
+    given use self! {
         push(value : Item'self) => : None
         pop where self is non'Empty => : Item
         operator item=(index : Index, value : Item) => : None
@@ -80,25 +80,25 @@ SmallStack = proto AnyStack & struct(
         item(index : Index) => item(data'self, index) from self
     }
     
-    given use @self {
+    given use self! {
         operator item=(index : Index, value : Item) => {
-            item(@data'self, index) = value
+            item(data'self!, index) = value
         }
 
         push(value : Item'self) => {
-            ensureCapacity(@self, count'self + 1)
+            ensureCapacity(self!, count'self + 1)
 
             oldItems = rel data'self
-            @count'self + 1 /*/ invalidates data'self
-            @data'self = concat[rel oldItems, [value]]
+            count'self! + 1 /*/ invalidates data'self
+            data'self! = concat[rel oldItems, [value]]
         }
 
         pop => Item {
             ret = item(data'self, count'self - 1) /*/ copied out before the buffer goes
 
             oldItems = Array'items(rel data'self, range(0, count'self - 1))
-            @count'self -1 /*/ invalidates data'self
-            @data'self = rel oldItems
+            count'self! -1 /*/ invalidates data'self
+            data'self! = rel oldItems
 
             out ret
         }
@@ -107,8 +107,8 @@ SmallStack = proto AnyStack & struct(
             newValuesCount = sum[count'list for list in lists]
 
             oldItems = rel data'self
-            @count'self + newValuesCount /*/ invalidates data'self
-            @data'self = concat[rel oldItems, l for l in lists]
+            count'self! + newValuesCount /*/ invalidates data'self
+            data'self! = concat[rel oldItems, l for l in lists]
         }
     }
 
@@ -128,11 +128,11 @@ SmallStack = proto AnyStack & struct(
       @brief Ensures that the stack has enough memory for the capacity,
       without modifying the items
     **/
-    _ensureCapacity(use @self, minCapacity : Unsigned64 where this <= count'self) => {
+    _ensureCapacity(use self!, minCapacity : Unsigned64 where this <= count'self) => {
         if capacity'self < minCapacity {
             oldItems = rel data'self
-            @capacity'self = minCapacity
-            @items'self = rel oldItems
+            capacity'self! = minCapacity
+            items'self! = rel oldItems
         }
     }
 )

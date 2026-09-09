@@ -9,7 +9,7 @@ IntList = proto struct(
 
 len(arr : IntList) => usedLen'arr
 
-Index(arr : ref IntList) => Count & (use arr) where this < len'arr
+Index(arr : @IntList) => Count & (use arr) where this < len'arr
 
 safeItem(arr : IntList, ind : Index'arr) => reservedBuffer(arr, ind)
 

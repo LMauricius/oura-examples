@@ -3,7 +3,7 @@ Two keywords describing use of fields:
 - `by`
 
 These 2 describe whole semantics of references/owned, lifetimes, const/mutable/volatile.
-Everything else is a use-site marker: `@`, `ref`, `rel`, `del`.
+Everything else is a use-site marker: `!`, `@`, `rel`, `del`.
 
 # from
 - Where the binding's storage lives
@@ -17,8 +17,8 @@ Everything else is a use-site marker: `@`, `ref`, `rel`, `del`.
 - `&` needs a refcount unless the deaths are statically ordered
 - Covers lifetimes, ownership, references, pinning, arenas, allocators
 - Called: region? source?
-- Absorbs: `ref` in declarations (derivable), the storage half of `ex`
-- Used before: `ref`. Note `own` was never used; `from` itself is already in use for lifetime anchoring
+- Absorbs: `@` in declarations (derivable), the storage half of `ex`
+- Used before: `ref`, now spelled `@`. Note `own` was never used; `from` itself is already in use for lifetime anchoring
 
 # by
 - Who may write the place
@@ -32,17 +32,18 @@ Everything else is a use-site marker: `@`, `ref`, `rel`, `del`.
 - Viral. A caller that cannot declare the same set cannot make the call
 - Called: writers? permission?
 - Absorbs: `ex`, `ex to`
-- Used before: `var`, `vol`, `mut`. Note `const` was never used; `ex` and `@` are current, not historical
+- Used before: `var`, `vol`, `mut`. Note `const` was never used; `ex` and `!` are current, not historical
+
+# !
+- Unchanged in meaning. Marks every write site, now as a suffix
+- Resolves to the place at the last hop of the chain, which is what `by` is checked against
+- Used before: `@`, as a prefix
 
 # @
-- Unchanged. Marks every write site
-- Resolves to the place at the last hop of the chain, which is what `by` is checked against
-
-# ref
 - Binds a reference to a value owned elsewhere. Initialization and assignment only
 - Not a type constructor. In a declaration, `from` already says owned against reference
-- Completes the set of ways a value reaches a binding: bare copies, `rel` moves, `ref` aliases
-- Used before: also in declarations, which is the half `from` takes over
+- Completes the set of ways a value reaches a binding: bare copies, `rel` moves, `@` aliases
+- Used before: `ref`, also in declarations, which is the half `from` takes over
 
 # rel
 - Unchanged in meaning. Moves a value, so teardown does not run here
@@ -78,19 +79,19 @@ mattering: a subject either may write the place, or it may not.
 
 Two further arguments against the split:
 
-- It does not scale. Two words cover indirection depth 0 and 1. A `ref ref T` needs a third word,
-  and the depth is unbounded, so it belongs in the grammar rather than the vocabulary.
+- It does not scale. Two words cover indirection depth 0 and 1. A reference to a reference needs a
+  third word, and the depth is unbounded, so it belongs in the grammar rather than the vocabulary.
 - It creates two ways to say one thing. For an owned field the slot and the value are the same
   place, so both words would apply to it.
 
 ## Places, not pointers
 
-Every `@write` resolves to exactly one place, and the last hop of the access chain names it. This
+Every `!write` resolves to exactly one place, and the last hop of the access chain names it. This
 is what removes the need for the split:
 
 ```oura
-@tail'self = ref prev'tail'self    /*/ writes `tail`,  declared in LinkedList. Repointing.
-@value'tail'self = v               /*/ writes `value`, declared in ListNode. Every alias sees it.
+tail'self! = @prev'tail'self   /*/ writes `tail`,  declared in LinkedList. Repointing.
+value'tail'self! = v           /*/ writes `value`, declared in ListNode. Every alias sees it.
 ```
 
 Each field is declared in exactly one record, so the two permissions live in two declarations and
@@ -106,18 +107,19 @@ _tail : ListNode from head'self by ()     /*/ may not repoint, node stays writab
 Inside the parentheses qualifies what the slot names, outside qualifies the slot. This works at any
 depth.
 
-Neither line spells `ref`, because `from head'self` names a place other than `this` and that is
+Neither line spells `@`, because `from head'self` names a place other than `this` and that is
 already the whole difference between owning and referring. The marker survives where the two
 examples above cannot help, which is the moment a binding is filled:
 
 ```oura
-@cur : ListNode = ref head'self   /*/ alias, from LinkedList as written today
+cur! : ListNode = @head'self   /*/ alias, from LinkedList as written today
 ```
 
 Here the declared type carries no `from` clause to read, and without the marker the line would be
-indistinguishable from a copy. So `ref` joins `rel` and bare assignment as the third answer to how
-a value arrives: copy, move, alias. A useful side effect: the checked place is the last hop no matter where `@` sits, so the
-open question about `@data'self` against `data'@self` becomes purely cosmetic.
+indistinguishable from a copy. So `@` joins `rel` and bare assignment as the third answer to how
+a value arrives: copy, move, alias. A useful side effect: the checked place is the last hop no
+matter where `!` sits, so the open question about `data'self!` against `data!'self` becomes purely
+cosmetic.
 
 ## Cyclic references
 
@@ -302,7 +304,7 @@ this pattern.
 ## What was dropped along the way
 
 - `ex` as a separate keyword. It is `by` with a writer you cannot sequence by calling it.
-- `ref` in declarations. `from this` against `from <other>` already distinguishes owned from
+- `@` in declarations. `from this` against `from <other>` already distinguishes owned from
   reference. The marker itself stays, for initialization and assignment.
 - `to` as a third axis. Merged into `by`.
 - Per-reference const qualifiers. Replaced by naming subjects.
@@ -317,26 +319,26 @@ this pattern.
 
 These are repository-wide sweeps, not local edits.
 
-**`ref` leaves declarations and stays in expressions.** Three declarations lose it:
+**`@` leaves declarations and stays in expressions.** Three declarations lose it:
 `Bounds.oura:12`, `LinkedList.oura:10` and `LinkedList.oura:68`. Six initialization and assignment
 sites keep it unchanged: `LinkedList.oura` lines 24, 28, 42, 50, 58 and 60. Line 24 already writes
-the settled form, since `@cur : ListNode = ref head'self` puts the marker on the value rather than
+the settled form, since `cur! : ListNode = @head'self` puts the marker on the value rather than
 on the type.
 
-One case does not survive the sweep on its own. `Bounds.oura:12` declares `arr : ref IntList`, and a
+One case does not survive the sweep on its own. `Bounds.oura:12` declares `arr : @IntList`, and a
 parameter is exactly where the region belongs to the caller and cannot be named from inside the
 callee, so dropping the marker leaves nothing saying the argument is borrowed rather than consumed.
 `from(out)` in `Ownership.oura:20` shows the shape an answer would take.
 
 **`ex` becomes `by`.** `RandVec.oura` has five sites. `ex deviceRandom` becomes a `by` clause
-naming the writing module, `use ex @console` becomes a parameter with a `by` clause, and `main ex`
+naming the writing module, `use ex console!` becomes a parameter with a `by` clause, and `main ex`
 needs a decision of its own, because inbound effect on a function is a different fact from a
 writable place.
 
 **`ex to` disappears.** The form documented in `README.md` never reached a `.oura` file, and its
 job is now `by`.
 
-**`Ownership.oura:25` loses its teardown hook.** It defines `operator rel(use @self) => { free(rel
+**`Ownership.oura:25` loses its teardown hook.** It defines `operator rel(use self!) => { free(rel
 data'self) }` under the comment "Runs where a binding dies unmoved", and since neither operator
 is overridable now, renaming it to `operator del` is not
 the fix. Custom teardown has two replacements instead. Memory reached through `from rel this` is
@@ -360,7 +362,7 @@ C++ or Java.
 
 - Copying is a call to `operator new T(T)`, never automatic for types that close it.
 - Partial moves are permitted with re-initialization on every path before the scope ends.
-- The `@data'self` against `data'@self` question is cosmetic, since the checked place is the last
+- The `data'self!` against `data!'self` question is cosmetic, since the checked place is the last
   hop either way.
 - The `ex to` checking rules are moot, because the form is gone.
 
@@ -370,18 +372,18 @@ C++ or Java.
   `data'self`, and the final constructor writes `data = ...`. `_ensureCapacity` uses both names in
   the same function. Referenced without the underscore, `_items` also collides with the `items`
   accessor on line 78.
-- `LinkedList.oura:68` declares `prev: ref ListNode | None` with no `from` clause, which is the
+- `LinkedList.oura:68` declares `prev: @ListNode | None` with no `from` clause, which is the
   anchor the back-reference rule needs.
 - `LinkedList.oura:36` has a stray `.` in `next'tail'self. = ListNode(`, and the write is unmarked.
 - `LinkedList.oura:44` writes `head'self` unmarked.
-- `LinkedList.oura:54` declares `=> Item` but never returns. `@tail'self = ref prev'tail'self`
+- `LinkedList.oura:54` declares `=> Item` but never returns. `tail'self! = @prev'tail'self`
   appears twice, and the second reads `prev` of the new tail. The empty-list case never clears
   `head'self`.
 
 # Open questions
 
 - `main ex`: inbound effect on a function. `by`, `from`, or left alone?
-- `by` on a local: written as `by this`, or does `@` at declaration remain the whole story?
+- `by` on a local: written as `by this`, or does `!` at declaration remain the whole story?
 - Global with no `by`: immutable, or module-writable?
 - Shared ownership: keep `&` and `|`, or give the refcounted case its own spelling, since one is
   static and the other is not?
@@ -389,7 +391,7 @@ C++ or Java.
 - Marked propagation form to cut the `else` boilerplate, now that unhandled unions are forbidden?
 - `by ()` on a field of an otherwise writable record: legal, or contradiction?
 - Generic referents: where does a `by` inside the parentheses attach when the type is a parameter?
-- Borrowed parameters: what replaces `ref` in `Bounds.oura:12`, given that the caller owns the
+- Borrowed parameters: what replaces `@` in `Bounds.oura:12`, given that the caller owns the
   region and the callee cannot name it?
 - Custom teardown: with neither `rel` nor `del` overridable, are managed `from rel this` and linear
   disposal enough, or does something still need a hook?

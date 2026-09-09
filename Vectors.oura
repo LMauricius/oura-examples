@@ -23,10 +23,10 @@ normalized(vec : Vector3 & non'ZERO3) => Vector3 {
 
 InvalidVectorError = exceptional'class
 
-readNormal(@ts : TextStream) => (result : Vector3) | DeserializationError | InvalidVectorError {
-    x = read(@ts, Float32)
-    y = read(@ts, Float32)
-    z = read(@ts, Float32)
+readNormal(ts! : TextStream) => (result : Vector3) | DeserializationError | InvalidVectorError {
+    x = read(ts!, Float32)
+    y = read(ts!, Float32)
+    z = read(ts!, Float32)
 
     use (x, y, z) as result else {
         out DeserializationError

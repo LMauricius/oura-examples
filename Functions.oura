@@ -7,10 +7,10 @@ ProtoRecord = proto (
 ImplRecord = ProtoRecord(
     f = (x, y) -> x * y
     g = (x, p) -> {
-        @res = x
+        res! = x
 
         repeat p - 1 {
-            @res *x
+            res! *x
         }
 
         out res

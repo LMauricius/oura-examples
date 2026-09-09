@@ -22,7 +22,7 @@ Block = proto struct(
     /**** Lifetime *************************************************************************/
 
     /* Runs where a binding dies unmoved; a `rel` use suppresses it **/
-    operator rel(use @self) => {
+    operator rel(use self!) => {
         free(rel data'self)
     }
 
@@ -44,7 +44,7 @@ operator new Block(Item : proto Any, capacity : Count) => Block & (
 **/
 resized(block from(out), newCapacity : Count) => Block'Item'block {
     grown = Block(Item'block, newCapacity)
-    items(@data'grown, range(0, capacity'block)) = rel items'block
+    items(data'grown!, range(0, capacity'block)) = rel items'block
     out grown
 }
 

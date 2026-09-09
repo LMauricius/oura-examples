@@ -24,15 +24,15 @@ These three carry most of the syntax, and each one follows a single rule.
 
 ### `use` imports
 
-`use e` binds `head<e> = ref e`. The name comes from the head of the expression, and the binding
+`use e` binds `head<e> = @e`. The name comes from the head of the expression, and the binding
 is by reference. That one rule covers every use:
 
 ```oura
 use Dict mod Std              /*/ module:      import Dict from Std
 use count                     /*/ field:       count = count
 count(use self)               /*/ parameter:   self, imported into scope
-use ex @console mod IO.Std        /*/ with modifiers
-GarbageBytes(use size'Bytes'Item)   /*/ named argument: size = ref size'Bytes'Item
+use ex console! mod IO.Std        /*/ with modifiers
+GarbageBytes(use size'Bytes'Item)   /*/ named argument: size = @size'Bytes'Item
 Count & (use arr) where this < len'arr   /*/ capture, inside a refinement
 ```
 
@@ -43,20 +43,20 @@ under a name of its own — `if frontInd = Index(vec, 0)` in `RandVec.oura` — 
 construct spelled out. The keyword marks the elision; it does not perform the binding, which
 is why it is not itself `=`.
 
-In a parameter list it does the same job, and there it pairs with `@`, which is a separate
-marker on its own axis. `use` says the parameter binds from a name already in scope; `@` says the
+In a parameter list it does the same job, and there it pairs with `!`, which is a separate
+marker on its own axis. `use` says the parameter binds from a name already in scope; `!` says the
 callee reads and writes it. The two combine freely, and a parameter carrying neither consumes what
 it is given:
 
 ```oura
 count(use self)                        /*/ imported, read-only
-operator rel(use @self)                /*/ imported, read-modify-write
-hurt(@targetPlayer : Player, …)        /*/ fresh name, read-modify-write
+operator rel(use self!)                /*/ imported, read-modify-write
+hurt(targetPlayer! : Player, …)        /*/ fresh name, read-modify-write
 resized(block from(out), …)            /*/ fresh name, consumed
 ```
 
-A receiver always comes from the enclosing scope, so a mutating method takes `use @self` and never
-a bare `@self`. A `given` or `with` block can supply it once for everything inside it, which is why
+A receiver always comes from the enclosing scope, so a mutating method takes `use self!` and never
+a bare `self!`. A `given` or `with` block can supply it once for everything inside it, which is why
 the methods of `AnyStack` declare no receiver of their own.
 
 An optional expression may be applied to the value as it is imported, written after `as`. Import
@@ -99,7 +99,7 @@ Array'data'self     /*/ Array(data(self))
 Count'16            /*/ conversion is a call
 ArrayList'Int64     /*/ instantiation is a call
 sum[count'list for list in lists]     /*/ no ' — the bracket delimits
-write(@console, "…")                  /*/ no ' — the parentheses delimit
+write(console!, "…")                  /*/ no ' — the parentheses delimit
 ```
 
 `[…]` is a Listable, so it also covers generators (`[factoryFunction() for range(0, n)]`).
@@ -126,15 +126,15 @@ sqrt(mod Math, x'vec^2 + y'vec^2)    /*/ the Math sqrt, not whichever is in scop
 
 ## Mutation
 
-A local in a procedural scope declares itself writable, and `@` is that declaration:
+A local in a procedural scope declares itself writable, and `!` is that declaration:
 
 ```oura
-@acc = 0
+acc! = 0
 ```
 
 A field declares nothing. Writability belongs to the record holding it rather than to the field, so
 there is no per-field feature to reach for, and `_data : Buffer'Item` needs no marker to be written
-later. Both kinds still carry `@` at every write, which the `@` section below covers in full.
+later. Both kinds still carry `!` at every write, which the `!` section below covers in full.
 
 `ex` is the separate case: the binding is *exposed*, meaning something the declaration does not
 name may write it — a device, the operating system, another agent entirely.
@@ -143,16 +143,16 @@ name may write it — a device, the operating system, another agent entirely.
 ex deviceRandom
 ```
 
-The two are orthogonal, and each carries exactly one fact. `@` says *this* code writes here;
+The two are orthogonal, and each carries exactly one fact. `!` says *this* code writes here;
 `ex` says *another* name may:
 
 |                  | no other writer   | another writer exists  |
 | ---------------- | ----------------- | ---------------------- |
 | this code reads  | *(default)*       | `ex`                   |
-| this code writes | `@` at each write | `ex`, and `@` likewise |
+| this code writes | `!` at each write | `ex`, and `!` likewise |
 
-A hardware random source is `ex` and carries no `@` anywhere — it changes under you, and you have
-no write of your own to mark. A control register a device also drives is `ex` with `@` at each of
+A hardware random source is `ex` and carries no `!` anywhere — it changes under you, and you have
+no write of your own to mark. A control register a device also drives is `ex` with `!` at each of
 your writes. Since an exposed value may change between one access and the next, it cannot be
 cached across them; that follows from the exposure rather than being a second thing to declare.
 
@@ -179,9 +179,9 @@ are not settled yet.
 ### Effects in both directions
 
 The marker and the keyword split at the limit of inference. Where a write becomes observable
-follows from the kind of place it is: a field is visible to whoever holds the struct, an `@`
+follows from the kind of place it is: a field is visible to whoever holds the struct, an `!`
 parameter is rebound at the call site. `ex` is the part that cannot be derived, which is why it is
-the only keyword left here. On a function, the `@` parameters carry the outbound effects and `ex`
+the only keyword left here. On a function, the `!` parameters carry the outbound effects and `ex`
 marks the inbound ones:
 
 ```oura
@@ -194,20 +194,20 @@ returned value, and it is what permits the body to reach bindings it never captu
 exposed functions at all. A `use ex` parameter declares the inbound effect for a single argument
 instead of for the whole function.
 
-`@` marks a writable place. Every write to one carries it, so the marker is on the page at each
+`!` marks a writable place. Every write to one carries it, so the marker is on the page at each
 point a value changes, whether the write comes from an assignment or from a call:
 
 ```oura
-@acc = 0                        /*/ declares a writable local
-@health'targetPlayer = 0        /*/ overwrites it
-@health'targetPlayer - amount   /*/ health'targetPlayer = health'targetPlayer - amount
-@count'self + 1
-hurt(@target, strength'attacker)
+acc! = 0                        /*/ declares a writable local
+health'targetPlayer! = 0        /*/ overwrites it
+health'targetPlayer! - amount   /*/ health'targetPlayer = health'targetPlayer - amount
+count'self! + 1
+hurt(target!, strength'attacker)
 ```
 
 What follows the place decides which kind of write it is: an operator reads the old value and folds
 the new one into it, while a bare `=` replaces it outright. Both are writes, so both are marked.
-A declaration is the first `@x = v` in a scope and an overwrite is any later one, which is the
+A declaration is the first `x! = v` in a scope and an overwrite is any later one, which is the
 only thing distinguishing the two.
 
 An indexed write marks the container rather than the place inside it, since the container is what
@@ -215,15 +215,14 @@ changes. That keeps it identical to any other mutating call, with the marker on 
 callee writes:
 
 ```oura
-item(@data'self, index) = value       /*/ operator item=(use @self, …)
-items(@data'grown, range(0, n)) = rel items'block
-hurt(@target, strength'attacker)
+item(data'self!, index) = value       /*/ operator item=(use self!, …)
+items(data'grown!, range(0, n)) = rel items'block
+hurt(target!, strength'attacker)
 ```
 
-`@` may equally sit at the head of a whole call chain, member accesses included, and it then takes
-the entire chain rather than the name it touches: `@count'self + 1` marks `count'self`, not `count`.
-That is the form every field write above uses, which is why none of them carries a marker deeper in
-the path.
+`!` follows a whole access chain, member accesses included, and it then takes the entire chain
+rather than the name it touches: `count'self! + 1` marks `count'self`, not `self`. That is the form
+every field write above uses, which is why none of them carries a marker deeper in the path.
 
 An unmarked `=` is therefore always a binding, never a write. `oldItems = rel data'self` binds a
 new name, and a binding declared with a trait and filled once on each path afterwards is still a
@@ -239,16 +238,16 @@ if use ind1 as Index'arr, use ind2 as Index'arr {
 }
 ```
 
-A parameter that will be mutated is declared `@targetPlayer`. What `@` does not do is import, so a
-receiver still needs `use @self`. The marker appears from both sides of the call and can be checked
+A parameter that will be mutated is declared `targetPlayer!`. What `!` does not do is import, so a
+receiver still needs `use self!`. The marker appears from both sides of the call and can be checked
 rather than merely conventional.
 
 There are no callee-side references. A mutating call passes values in and returns them out, and
 the call site rebinds them — `Player.oura` spells the desugaring out in full:
 
 ```oura
-attack(@myPlayer, @otherPlayer)
-/*/ EXPLICIT: (@myPlayer = attacker, @otherPlayer = target)
+attack(myPlayer!, otherPlayer!)
+/*/ EXPLICIT: (myPlayer! = attacker, otherPlayer! = target)
 /*/             = attack(attacker = myPlayer, target = otherPlayer)
 ```
 
@@ -262,17 +261,17 @@ only genuinely new values — which is why every mutator below declares `: None`
 
 ```mermaid
 flowchart LR
-    A["push(use @self, value)"] -->|"implicit"| B["mutated self, rebound at call site"]
+    A["push(use self!, value)"] -->|"implicit"| B["mutated self, rebound at call site"]
     A -->|"declared : None"| C["nothing"]
-    D["pop(use @self)"] -->|"implicit"| E["mutated self, rebound at call site"]
+    D["pop(use self!)"] -->|"implicit"| E["mutated self, rebound at call site"]
     D -->|"declared : Item"| F["out ret"]
 ```
 
 `out` returns. It can name its frame, which gives a labelled return out of a nested block:
 
 ```oura
-n = result'read(@console, Int64) else alt = {
-    write(@console, "Invalid input; assuming n=0\n")
+n = result'read(console!, Int64) else alt = {
+    write(console!, "Invalid input; assuming n=0\n")
     alt out 0
 }
 ```
@@ -283,9 +282,9 @@ itself. A block may name its frame first (`else alt = { … }`), and then `alt o
 a value, which covers the case above: a fallback value that has to be computed.
 
 ```oura
-n = result'read(@console, Int64) else = 0        /*/ fallback value
+n = result'read(console!, Int64) else = 0        /*/ fallback value
 use factoryFunction as (ex -> : ArrayList'Int64) else {
-    write(@console, "factoryFunction not defined!\n")
+    write(console!, "factoryFunction not defined!\n")
     main out 0                                  /*/ fallback block, leaves by itself
 }
 ```
@@ -300,7 +299,7 @@ over is a copy, so the caller's binding survives the call untouched.
 
 `rel` (release) marks an expression whose value is destroyed where it is used, handing the storage over
 instead of duplicating it. It is an elision marker rather than a safety mechanism, and it plays
-the same role for destruction that `@` plays for read-modify-write — it appears only at use
+the same role for destruction that `!` plays for read-modify-write — it appears only at use
 sites, never in a declaration:
 
 ```oura
@@ -308,6 +307,17 @@ b = a                       /*/ a copy — two blocks, so two teardowns
 c = rel a                   /*/ a move — `a` is gone, and only one teardown runs
 big = resized(rel c, 64)
 ```
+
+`@` is the third answer, and it aliases: the binding refers to a value owned somewhere else
+instead of holding one of its own. It reads the same way in a type and on a value:
+
+```oura
+_tail : @ListNode from head'self | None   /*/ the field refers, it does not own
+cur! : ListNode = @head'self              /*/ the binding aliases, it does not copy
+```
+
+So `b = a` copies, `c = rel a` moves and `cur! = @head'self` aliases. The three are told apart where
+the value arrives, rather than from the declaration alone.
 
 `from` is the counterpart, and appears only in declarations. It is what lets a value outlive the
 call it was passed to, and it names where the value comes to live:
@@ -325,15 +335,15 @@ willing to give up. Between them, handing out a raw buffer is checked rather tha
 
 ```oura
 oldItems = rel data'self
-@count'self + 1 /*/ invalidates data'self
-@data'self = concat[rel oldItems, [value]]
+count'self! + 1 /*/ invalidates data'self
+data'self! = concat[rel oldItems, [value]]
 ```
 
 `operator rel` is teardown, named after the use-site marker in the same way `operator item=` is
-named after `item(@x) = v`. It runs where a binding dies unmoved, and a `rel` use suppresses it:
+named after `item(x!) = v`. It runs where a binding dies unmoved, and a `rel` use suppresses it:
 
 ```oura
-operator rel(use @self) => {
+operator rel(use self!) => {
     free(rel data'self)
 }
 ```
@@ -364,14 +374,14 @@ there under either spelling:
 main ex => { … }        /*/ same thing as …
 main = () ex -> { … }   /*/ … this — ex qualifies the function, not the binding
 
-pop(use @self) where self is non'Empty => : Item
+pop(use self!) where self is non'Empty => : Item
 ```
 
 So that region carries `ex` for inbound effects, `where` for constraints and `: T` for the return
 trait.
 
 A body in braces returns with `out`, and may name its result trait first
-(`pop(use @self) => Item{ … }`).
+(`pop(use self!) => Item{ … }`).
 
 ### `operator`
 
@@ -379,8 +389,8 @@ A body in braces returns with `out`, and may name its result trait first
 follows is the syntax it answers to:
 
 ```oura
-operator rel(use @self) => { … }                                   /*/ rel x
-operator item=(use @self, index : Index, value : Item) => : None   /*/ item(@x, i) = v
+operator rel(use self!) => { … }                                   /*/ rel x
+operator item=(use self!, index : Index, value : Item) => : None   /*/ item(x!, i) = v
 operator new SmallStack(list : Listable) => …                      /*/ SmallStack'list
 ```
 
@@ -399,7 +409,7 @@ refinement may depend from a value, which is how bounds checking is expressed as
 Index = Unsigned64 where this < count
 Empty = self where count'self ?= 0
 
-Index(arr : ref IntList) => Count & (use arr) where this < len'arr
+Index(arr : @IntList) => Count & (use arr) where this < len'arr
 safeItem(arr : IntList, ind : Index'arr) => reservedBuffer(arr, ind)
 ```
 
@@ -427,8 +437,8 @@ Since the layout depends from `count` and `capacity`, changing either invalidate
 examples mark those points explicitly:
 
 ```oura
-@count'self + 1 /*/ invalidates data'self
-@data'self = concat[rel oldItems, [value]]
+count'self! + 1 /*/ invalidates data'self
+data'self! = concat[rel oldItems, [value]]
 ```
 
 **Error representation is an ABI parameter.** Errors are ordinary union returns (`Int32|OutOfBoundsError`),
@@ -457,5 +467,8 @@ syntax changing.
 - Copying: whether the deep copy of a struct that owns storage is automatic, or a hook such as `operator new Block(Block)`
 - Partial moves: `SmallStack.pop` moves a prefix out of the buffer and drops the rest, so one `rel` covers two fates
 - `ex to` checking rules: what a listed writer is permitted to do, and how a listed field's untracked reference is verified
-- Which mention carries `@` in a field write: the chain head (`@data'self`, as written throughout)
-  or the record that actually changes (`data'@self`), given that an indexed write marks its container
+- Which mention carries `!` in a field write: the tail of the chain (`data'self!`, as written
+  throughout) or the field that actually changes (`data!'self`), given that an indexed write marks
+  its container
+- `!` beside `!=`: `data'self! = v` and `data'self != v` are separated by one space, so either the
+  denial operator moves off `!` or the spacing becomes significant
