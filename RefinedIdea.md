@@ -3,7 +3,7 @@ Two keywords describing use of fields:
 - `by`
 
 These 2 describe whole semantics of references/owned, lifetimes, const/mutable/volatile.
-Everything else is a use-site marker: `@`, `rel`, `del`.
+Everything else is a use-site marker: `@`, `ref`, `rel`, `del`.
 
 # from
 - Where the binding's storage lives
@@ -17,7 +17,7 @@ Everything else is a use-site marker: `@`, `rel`, `del`.
 - `&` needs a refcount unless the deaths are statically ordered
 - Covers lifetimes, ownership, references, pinning, arenas, allocators
 - Called: region? source?
-- Absorbs: `ref` (derivable), the storage half of `ex`
+- Absorbs: `ref` in declarations (derivable), the storage half of `ex`
 - Used before: `ref`. Note `own` was never used; `from` itself is already in use for lifetime anchoring
 
 # by
@@ -37,6 +37,12 @@ Everything else is a use-site marker: `@`, `rel`, `del`.
 # @
 - Unchanged. Marks every write site
 - Resolves to the place at the last hop of the chain, which is what `by` is checked against
+
+# ref
+- Binds a reference to a value owned elsewhere. Initialization and assignment only
+- Not a type constructor. In a declaration, `from` already says owned against reference
+- Completes the set of ways a value reaches a binding: bare copies, `rel` moves, `ref` aliases
+- Used before: also in declarations, which is the half `from` takes over
 
 # rel
 - Unchanged in meaning. Moves a value, so teardown does not run here
@@ -93,12 +99,24 @@ referent's own declaration is too permissive, or the referent is generic), the c
 the type, by position:
 
 ```oura
-_tail : ref (ListNode by ()) from head'self   /*/ may repoint, may not write the node
-_tail : ref ListNode from head'self by ()     /*/ may not repoint, node stays writable
+_tail : (ListNode by ()) from head'self   /*/ may repoint, may not write the node
+_tail : ListNode from head'self by ()     /*/ may not repoint, node stays writable
 ```
 
 Inside the parentheses qualifies what the slot names, outside qualifies the slot. This works at any
-depth. A useful side effect: the checked place is the last hop no matter where `@` sits, so the
+depth.
+
+Neither line spells `ref`, because `from head'self` names a place other than `this` and that is
+already the whole difference between owning and referring. The marker survives where the two
+examples above cannot help, which is the moment a binding is filled:
+
+```oura
+@cur : ListNode = ref head'self   /*/ alias, from LinkedList as written today
+```
+
+Here the declared type carries no `from` clause to read, and without the marker the line would be
+indistinguishable from a copy. So `ref` joins `rel` and bare assignment as the third answer to how
+a value arrives: copy, move, alias. A useful side effect: the checked place is the last hop no matter where `@` sits, so the
 open question about `@data'self` against `data'@self` becomes purely cosmetic.
 
 ## Cyclic references
@@ -284,7 +302,8 @@ this pattern.
 ## What was dropped along the way
 
 - `ex` as a separate keyword. It is `by` with a writer you cannot sequence by calling it.
-- `ref` as a marker. `from this` against `from <other>` already distinguishes owned from reference.
+- `ref` in declarations. `from this` against `from <other>` already distinguishes owned from
+  reference. The marker itself stays, for initialization and assignment.
 - `to` as a third axis. Merged into `by`.
 - Per-reference const qualifiers. Replaced by naming subjects.
 - A pinning concept. `from rel this` covers it.
@@ -298,9 +317,16 @@ this pattern.
 
 These are repository-wide sweeps, not local edits.
 
-**`ref` is removed.** `Bounds.oura:12` and every reference in `LinkedList.oura` spell it, and the
-`from` clause already carries the fact. Either delete it everywhere or establish what it carries
-that `from` does not.
+**`ref` leaves declarations and stays in expressions.** Three declarations lose it:
+`Bounds.oura:12`, `LinkedList.oura:10` and `LinkedList.oura:68`. Six initialization and assignment
+sites keep it unchanged: `LinkedList.oura` lines 24, 28, 42, 50, 58 and 60. Line 24 already writes
+the settled form, since `@cur : ListNode = ref head'self` puts the marker on the value rather than
+on the type.
+
+One case does not survive the sweep on its own. `Bounds.oura:12` declares `arr : ref IntList`, and a
+parameter is exactly where the region belongs to the caller and cannot be named from inside the
+callee, so dropping the marker leaves nothing saying the argument is borrowed rather than consumed.
+`from(out)` in `Ownership.oura:20` shows the shape an answer would take.
 
 **`ex` becomes `by`.** `RandVec.oura` has five sites. `ex deviceRandom` becomes a `by` clause
 naming the writing module, `use ex @console` becomes a parameter with a `by` clause, and `main ex`
@@ -362,6 +388,8 @@ C++ or Java.
 - Quantifying over a record's fields in a refinement: what syntax?
 - Marked propagation form to cut the `else` boilerplate, now that unhandled unions are forbidden?
 - `by ()` on a field of an otherwise writable record: legal, or contradiction?
-- Generic referents (`ref Item`): where does an inside-the-parentheses `by` attach?
+- Generic referents: where does a `by` inside the parentheses attach when the type is a parameter?
+- Borrowed parameters: what replaces `ref` in `Bounds.oura:12`, given that the caller owns the
+  region and the callee cannot name it?
 - Custom teardown: with neither `rel` nor `del` overridable, are managed `from rel this` and linear
   disposal enough, or does something still need a hook?
