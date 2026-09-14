@@ -90,8 +90,8 @@ Every `!write` resolves to exactly one place, and the last hop of the access cha
 is what removes the need for the split:
 
 ```oura
-tail'self! = @prev'tail'self   /*/ writes `tail`,  declared in LinkedList. Repointing.
-value'tail'self! = v           /*/ writes `value`, declared in ListNode. Every alias sees it.
+tail'self! = @prev'tail'self    /*/ writes `tail`,  declared in LinkedList. Repointing.
+value'tail'self! = v               /*/ writes `value`, declared in ListNode. Every alias sees it.
 ```
 
 Each field is declared in exactly one record, so the two permissions live in two declarations and
