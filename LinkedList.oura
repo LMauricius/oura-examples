@@ -2,7 +2,7 @@ use Listable mod Core
 
 LinkedList = proto Listable & (
         Item : proto Any
-    ) & (
+        
         given use self {
             count() => Size {
                 res! = 0
@@ -40,10 +40,7 @@ LinkedList = proto Listable & (
                 out ret
             }
         }
-    ) & (
-        _
-        struct
-
+    ) & struct _(
         self = this
         head : ListNode from rel this | None
 
