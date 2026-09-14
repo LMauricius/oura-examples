@@ -1,0 +1,56 @@
+use Listable mod Core
+
+LinkedList = proto Listable & (
+        Item : proto Any
+    ) & (
+        given use self {
+            count() => Size {
+                res! = 0
+
+                for items'self {
+                    res! +1
+                }
+
+                out res
+            }
+
+            items() => Generator'Item {
+                cur! = @head'self
+
+                while use @cur as ListNode {
+                    over value'cur
+                    cur! = @next'cur
+                }
+            }
+        }
+
+        given use self! {
+            push_front(value : Item) => {
+                head'self! = ListNode(
+                    use rel value
+                    next = rel head'self
+                )
+            }
+
+            pop_front() where head'self is not None => Item {
+                ret = rel value'head'self
+                next = rel next'head'self
+                head'self! = rel next
+
+                out ret
+            }
+        }
+    ) & (
+        _
+        struct
+
+        self = this
+        head : ListNode from rel this | None
+
+        ListNode = proto struct(
+            self = this
+
+            value: Item
+            next: ListNode from rel this | None
+        )
+    )
