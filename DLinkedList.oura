@@ -1,13 +1,13 @@
 use Listable mod Core
 
-LinkedList = proto Listable & (
+DoublyLinkedList = proto Listable & (
         Item : proto Any
         
         given use self {
             count() => Size {
                 res! = 0
 
-                for node in items'self {
+                for items'self {
                     res! +1
                 }
 
@@ -66,7 +66,7 @@ LinkedList = proto Listable & (
                 )
             }
 
-            pop_front() where head'self is not None => Item {
+            pop_front() if head'self is not None => Item {
                 ret = rel value'head'self
                 next = rel next'head'self
                 head'self! = rel next
@@ -76,15 +76,12 @@ LinkedList = proto Listable & (
             }
         }
     ) & struct _(
-        self = this
         head : ListNode from rel this | None
-        tail : ListNode from head'self | None
+        tail : ListNode from head | None
 
         ListNode = proto struct(
-            self = this
-
             value: Item
-            prev: ListNode from head not from next | None
+            prev: ListNode from (head & not next) | None
             next: ListNode from rel this | None
         )
     )
